@@ -1,0 +1,133 @@
+@layer components {
+	.task-card {
+		@apply mx-4 flex transform cursor-pointer flex-col rounded-lg border border-neutral-800 bg-neutral-800 p-4 shadow;
+		&:hover {
+			@apply border border-neutral-700;
+		}
+	}
+	.task-card-hover {
+		@apply transition-transform duration-150 ease-in-out hover:-translate-y-1;
+	}
+
+	.tickup-select {
+		@apply !w-fit !min-w-24 !px-3 dark:!border-neutral-700 dark:!bg-neutral-900 dark:!text-neutral-400 dark:hover:[&:not(:has(.svelte-select-list:hover))]:!bg-neutral-800;
+		&:has(.clear-select) {
+			@apply !pr-0;
+		}
+		& .selected-item {
+			@apply !pr-0;
+		}
+		& .item {
+			@apply h-8 !cursor-pointer !border-none !bg-neutral-800 !px-3;
+
+			&.active {
+				@apply dark:!bg-neutral-800 dark:!text-neutral-400;
+			}
+
+			&.hover {
+				@apply !cursor-pointer !bg-neutral-700;
+			}
+		}
+
+		& .clear-select {
+			@apply !w-8 !cursor-pointer;
+
+			&:focus {
+				@apply !outline-0;
+			}
+
+			svg {
+				@apply h-4 w-4 cursor-pointer dark:!text-neutral-400;
+			}
+
+			&:hover svg {
+				@apply dark:!text-neutral-200;
+			}
+		}
+
+		& .svelte-select-list {
+			@apply !w-fit !bg-transparent !shadow-none;
+		}
+
+		& input:focus {
+			@apply !shadow-none !outline-none !ring-0;
+		}
+
+		& input {
+			@apply !cursor-pointer !text-xs dark:!text-neutral-400;
+		}
+
+		[slot='selection'] {
+			@apply flex items-center gap-1 text-xs;
+		}
+
+		[slot='item'] {
+			@apply flex h-full items-center gap-1.5 text-xs;
+		}
+	}
+
+	.tickup-select input::placeholder {
+		@apply bg-no-repeat pl-5 dark:!text-neutral-400;
+		background-image: url('data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="16" heihgt="16" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="%239ca3af"%3E%3Cpath stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 0 0 3 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 0 0 5.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 0 0 9.568 3Z" /%3E%3Cpath stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6Z" /%3E%3C/svg%3E');
+		background-position: center left;
+	}
+
+	/* Drag and Drop */
+	.drag-card {
+		@apply opacity-100 !important;
+		@apply rotate-6;
+	}
+
+	/* Custom Scrollbar */
+	.custom-scrollbars {
+		/* // for firefox */
+		&.firefox {
+			scrollbar-color: rgb(220, 220, 220) transparent;
+		}
+		&.firefox.dark {
+			scrollbar-color: rgb(159, 159, 159) transparent;
+		}
+
+		/* // for webkit */
+		& ::-webkit-scrollbar {
+			width: 5px;
+			height: 5px;
+		}
+		& ::-webkit-scrollbar-button {
+			background-color: transparent;
+			height: 2px;
+		}
+		& ::-webkit-scrollbar-track {
+			background-color: transparent;
+		}
+		&.dark ::-webkit-scrollbar-track {
+			background-color: transparent;
+		}
+		& ::-webkit-scrollbar-track-piece {
+			background-color: transparent;
+		}
+		&.dark ::-webkit-scrollbar-track-piece {
+			background-color: transparent;
+		}
+		& ::-webkit-scrollbar-thumb {
+			height: 10px;
+			border-radius: 4px;
+			background-color: rgb(220, 220, 220);
+		}
+		&.dark ::-webkit-scrollbar-thumb {
+			background-color: rgb(159, 159, 159);
+		}
+		& ::-webkit-scrollbar-corner {
+			background-color: rgb(220, 220, 220);
+		}
+		&.dark ::-webkit-scrollbar-corner {
+			background-color: rgb(159, 159, 159);
+		}
+		& ::-webkit-resizer {
+			background-color: rgb(220, 220, 220);
+		}
+		&.dark ::-webkit-resizer {
+			background-color: rgb(159, 159, 159);
+		}
+	}
+}
