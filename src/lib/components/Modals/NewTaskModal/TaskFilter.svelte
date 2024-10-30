@@ -1,9 +1,9 @@
 <script lang="ts">
-	import { priorities, Priority, PriorityColors } from '$lib/constants/priorities';
-	import type { NewTaskModalData } from '$lib/types/modals';
 	import type { DropdownOption } from '$lib/types/dropdowns';
+	import type { NewTaskModalData } from '$lib/types/modals';
 	import CheckOutline from 'flowbite-svelte-icons/CheckOutline.svelte';
-	import { Flag, Icon, XMark } from 'svelte-hero-icons';
+	import type { Snippet } from 'svelte';
+	import { Icon, XMark } from 'svelte-hero-icons';
 	import Select from 'svelte-select';
 
 	interface Props {
@@ -11,9 +11,10 @@
 		dropdownOptions: DropdownOption[];
 		placeholder: string;
 		key: keyof NewTaskModalData;
+		icon: Snippet<[any]>;
 	}
 
-	let { newTask: newTask = $bindable(), dropdownOptions, placeholder, key }: Props = $props();
+	let { newTask: newTask = $bindable(), dropdownOptions, placeholder, key, icon }: Props = $props();
 
 	let floatingConfig = {
 		strategy: 'fixed'
@@ -36,7 +37,7 @@
 	--height="32px"
 >
 	<div slot="item" let:item>
-		<Icon src={Flag} class={`size-4 text-${PriorityColors[item.value as Priority]}`} />
+		{@render icon?.(item)}
 		{item.label}
 
 		{#if item.value == newTask.priority.value}
@@ -45,7 +46,7 @@
 	</div>
 
 	<div slot="selection" let:selection>
-		<Icon src={Flag} class={`size-4 text-${PriorityColors[selection.value as Priority]}`} />
+		{@render icon?.(selection)}
 		{selection.label}
 	</div>
 

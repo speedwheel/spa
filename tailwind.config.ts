@@ -19,6 +19,9 @@ export default {
 	safelist: [
 		{
 			pattern: /(text)-(red|yellow|blue|gray)-(400)/
+		},
+		{
+			pattern: /text-(red|neutral|yellow|purple|green|teal|pink|indigo|orange|sky|blue)-(400)/
 		}
 	],
 	theme: {

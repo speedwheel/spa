@@ -5,12 +5,12 @@ import type { Project } from './project';
 
 export interface Task {
 	id: string;
-	name: string;
-	description: string;
+	name: strin | null;
+	description: string | null;
 	order_index: number;
 	view_type: ViewType;
-	priority: Priority; // Define possible values for priority
-	panel_date: string; // Consider using Date type if needed
+	priority: Priority | null; // Define possible values for priority
+	panel_date: string | null; // Consider using Date type if needed
 	user_id: string;
 	label_id: string | null;
 	project_id: string | null;
@@ -52,12 +52,12 @@ export interface UpdateTaskProps {
 }
 
 export interface CreateTaskProps {
-	name: string;
+	name: string | null;
 	view_type: ViewType;
-	panel_date: string;
-	description?: string;
-	priority?: Priority;
-	project_id?: string;
-	label_id?: string;
-	google_calendar?: TaskGoogleCalendar;
+	panel_date?: string | null;
+	description?: string | null;
+	priority: Priority;
+	project_id?: string | null;
+	label_id?: string | null;
+	google_calendar?: TaskGoogleCalendar | null;
 }

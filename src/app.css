@@ -1,6 +1,6 @@
 @import 'tailwindcss/base';
 @import 'tailwindcss/components';
-@import 'lib/css/components.css';
+@import 'lib/static/css/components.css';
 @import 'tailwindcss/utilities';
 
 body {

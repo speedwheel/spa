@@ -25,6 +25,11 @@ export const fetchWeeklyTasks = async (
 };
 
 export const createTask = async (body: CreateTaskProps): Promise<Task> => {
+	if (!body.description) delete body.description;
+	if (!body.panel_date) delete body.panel_date;
+	if (!body.label_id) delete body.label_id;
+	if (!body.project_id) delete body.project_id;
+
 	const headers = setHeaders();
 	const url = `${PUBLIC_API_URL}/users/tasks`;
 	const res = await fetch(url, {

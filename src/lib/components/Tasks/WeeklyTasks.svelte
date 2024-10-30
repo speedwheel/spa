@@ -7,7 +7,8 @@
 	import TaskCard from './TaskCard.svelte';
 	import { tick } from 'svelte';
 	import { onlyDate } from '$lib/utils/dateFormatter';
-	import NewTaskModal from './NewTaskModal/NewTaskModal.svelte';
+	import NewTaskModal from '$lib/components/Modals/NewTaskModal/NewTaskModal.svelte';
+	import { filteredTasksStore } from '$lib/stores/tasksStore';
 
 	let columnsByDate: { [key: string]: HTMLElement } = {};
 	let scrollableElement: HTMLElement | null = null;
@@ -18,6 +19,7 @@
 
 	(async () => {
 		const currentDate = onlyDate(new Date());
+		if (!currentDate) return;
 		const weeklyTasks = await api.tasks.fetchWeeklyTasks({
 			view_type: 'work',
 			current_date: currentDate
@@ -56,9 +58,8 @@
 </script>
 
 <main bind:this={scrollableElement} class="flex flex-1 overflow-auto p-4">
-	<NewTaskModal />
 	<div class="flex gap-4">
-		{#each $weeklyTasksStore as tasksColumn (tasksColumn.date)}
+		{#each $filteredTasksStore as tasksColumn (tasksColumn.date)}
 			<div class="flex w-72 flex-col rounded-lg py-4 dark:bg-neutral-900">
 				<div class="flex-4 flex flex-1 flex-col overflow-y-auto overflow-x-hidden">
 					<div class="px-4 pb-4">
@@ -76,7 +77,7 @@
 						class="flex flex-1 flex-col space-y-4 overflow-y-auto overflow-x-hidden pt-4"
 					>
 						{#each tasksColumn.tasks as task (task.id)}
-							<TaskCard {task} />
+							<TaskCard bind:task />
 						{/each}
 					</div>
 				</div>

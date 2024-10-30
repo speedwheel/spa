@@ -6,6 +6,10 @@ const config = {
 	// Consult https://svelte.dev/docs/kit/integrations
 	// for more information about preprocessors
 	preprocess: vitePreprocess(),
+	// compilerOptions: {
+	// 	// disable all warnings coming from node_modules and all accessibility warnings
+	// 	warningFilter: (warning) => !warning.filename?.includes('node_modules') && !warning.code.match('a11y_click_events_have_key_event') || !warning.code.match('a11y_no_static_element_interactions')
+	// },
 
 	kit: {
 		// adapter-auto only supports some environments, see https://svelte.dev/docs/kit/adapter-auto for a list.

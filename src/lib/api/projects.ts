@@ -1,15 +1,15 @@
-import type { LabelsResponse } from '$lib/types/label';
+import type { ProjectsResponse } from '$lib/types/project';
 import { setHeaders } from './api';
 import { PUBLIC_API_URL } from '$env/static/public';
 import { handleErrorResponse } from '$lib/utils/errorHandling';
 
-export const fetchLabels = async (): Promise<LabelsResponse> => {
+export const fetchProjects = async (): Promise<ProjectsResponse> => {
 	const headers = setHeaders();
 
-	const url = `${PUBLIC_API_URL}/users/tasks/labels`;
+	const url = `${PUBLIC_API_URL}/users/tasks/projects`;
 	const res = await fetch(url, { headers });
 
-	await handleErrorResponse(res, 'fetch labels');
+	await handleErrorResponse(res, 'fetch projects');
 
 	return res.json();
 };

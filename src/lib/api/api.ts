@@ -6,6 +6,10 @@ import {
 	type FetchWeeklyTasksProps
 } from '$lib/api/tasks';
 import { PUBLIC_ACCESS_TOKEN } from '$env/static/public';
+import type { LabelsResponse } from '$lib/types/label';
+import { fetchLabels } from './labels';
+import { fetchProjects } from './projects';
+import type { ProjectsResponse } from '$lib/types/project';
 
 export interface Api {
 	tasks: {
@@ -13,13 +17,25 @@ export interface Api {
 		updateTask: (task_id: string, body: UpdateTaskProps) => Promise<Task>;
 		createTask: (body: CreateTaskProps) => Promise<Task>;
 	};
+	labels: {
+		fetchLabels: () => Promise<LabelsResponse>;
+	};
+	projects: {
+		fetchProjects: () => Promise<ProjectsResponse>;
+	};
 }
 
 const api: Api = {
 	tasks: {
-		fetchWeeklyTasks: fetchWeeklyTasks,
-		updateTask: updateTask,
-		createTask: createTask
+		fetchWeeklyTasks,
+		updateTask,
+		createTask
+	},
+	labels: {
+		fetchLabels
+	},
+	projects: {
+		fetchProjects
 	}
 };
 

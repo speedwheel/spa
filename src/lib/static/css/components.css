@@ -9,6 +9,17 @@
 		@apply transition-transform duration-150 ease-in-out hover:-translate-y-1;
 	}
 
+	.tickup-datepicker input::placeholder {
+		@apply dark:!text-neutral-400;
+	}
+	.tickup-datepicker {
+		input {
+			@apply w-32 focus:!ring-0 dark:!text-neutral-400;
+		}
+		svg {
+			@apply !size-3 dark:!text-neutral-400;
+		}
+	}
 	.tickup-select {
 		@apply !w-fit !min-w-24 !px-3 dark:!border-neutral-700 dark:!bg-neutral-900 dark:!text-neutral-400 dark:hover:[&:not(:has(.svelte-select-list:hover))]:!bg-neutral-800;
 		&:has(.clear-select) {

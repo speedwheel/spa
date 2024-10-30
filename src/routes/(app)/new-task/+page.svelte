@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { newTaskModalOpenStore } from '$lib/stores/newTaskModalOpenStore';
+	import { isNewTaskOpenStore } from '$lib/stores/taskModalsStore';
 
-	newTaskModalOpenStore.set(true);
+	isNewTaskOpenStore.set(true);
 </script>

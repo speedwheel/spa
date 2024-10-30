@@ -2,18 +2,35 @@
 	import '$lib/fonts';
 	import '../../app.css';
 
-	import Logo from '$lib/images/Logo.svelte';
-	import MenuIcon from '$lib/images/MenuIcon.svelte';
-	import avatar from '$lib/images/avatar.png';
-	import EditIcon from '$lib/images/EditIcon.svelte';
-	import SearchIcon from '$lib/images/SearchIcon.svelte';
+	import Logo from '$lib/static/images/Logo.svelte';
+	import MenuIcon from '$lib/static/images/MenuIcon.svelte';
+	import avatar from '$lib/static/images/avatar.png';
+	import EditIcon from '$lib/static/images/EditIcon.svelte';
+	import { Icon, MagnifyingGlass } from 'svelte-hero-icons';
+	import api from '$lib/api/api';
+	import { labelsStore, projectsStore } from '$lib/stores/filtersStore';
 
-	document.body.classList.add('flex', 'flex-col', 'h-screen', 'select-none', 'dark:bg-neutral-800');
-	document.documentElement.classList.add('dark');
+	document.body.classList.add('flex', 'flex-col', 'h-full', 'select-none', 'dark:bg-neutral-800');
+	document.documentElement.classList.add('dark', 'custom-scrollbars', 'h-full');
+
+	async function initializeApp() {
+		try {
+			const [labels, projects] = await Promise.all([
+				api.labels.fetchLabels(),
+				api.projects.fetchProjects()
+			]);
+			labelsStore.set(labels.data);
+			projectsStore.set(projects.data);
+		} catch (error) {
+			console.error('Failed to fetch labels:', error);
+		}
+	}
+
+	initializeApp();
 </script>
 
-<header class="flex items-center border-b py-4 dark:border-b-neutral-700">
-	<div class="flex w-72 items-center justify-between px-4">
+<header class="flex items-center border-b px-4 py-4 dark:border-b-neutral-700">
+	<div class="flex w-72 items-center justify-between">
 		<a href="/">
 			<Logo className="h-9" />
 		</a>
@@ -25,7 +42,7 @@
 	</div>
 	<div class="relative ml-4 w-full max-w-xl">
 		<div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-			<SearchIcon />
+			<Icon src={MagnifyingGlass} solid class="size-5 dark:text-neutral-400" />
 		</div>
 		<input
 			type="search"
@@ -33,7 +50,7 @@
 			placeholder="Search"
 		/>
 	</div>
-	<div class="ml-auto flex gap-5 pr-4">
+	<div class="ml-auto flex gap-5">
 		<button>
 			<EditIcon />
 		</button>
