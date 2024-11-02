@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { createCustomPlaceholder } from '$lib/tiptap/extensions';
-	import type { TaskModalData } from '$lib/types/modals';
+
 	import { Editor } from '@tiptap/core';
 	import TaskItem from '@tiptap/extension-task-item';
 	import TaskList from '@tiptap/extension-task-list';
@@ -8,13 +8,14 @@
 	import { onDestroy, onMount } from 'svelte';
 
 	interface Props {
-		taskModalData: TaskModalData;
+		value: string | null;
 	}
 
-	let { taskModalData = $bindable() }: Props = $props();
+	let { value = $bindable() }: Props = $props();
 
 	let editorEl: HTMLElement;
 	let editor: Editor | null = null;
+	let inputTimeout: NodeJS.Timeout;
 
 	onMount(() => {
 		editor = new Editor({
@@ -34,8 +35,12 @@
 				createCustomPlaceholder('Task description')
 			],
 			element: editorEl,
+			content: value,
 			onUpdate(props) {
-				taskModalData.description = props.editor.getHTML();
+				clearTimeout(inputTimeout);
+				inputTimeout = setTimeout(() => {
+					value = props.editor.getHTML();
+				}, 300);
 			},
 			onTransaction(transaction) {
 				editor = transaction.editor;

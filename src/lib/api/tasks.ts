@@ -1,7 +1,7 @@
 import { PUBLIC_API_URL } from '$env/static/public';
-import type { CreateTaskProps, Task, UpdateTaskProps, WeeklyTasksResponse } from '$lib/types/tasks';
+import type { CreateTaskProps, Task, WeeklyTasksResponse } from '$lib/types/tasks';
 import { handleErrorResponse } from '$lib/utils/errorHandling';
-import { setHeaders } from './api';
+import { api } from './api';
 
 export interface FetchWeeklyTasksProps {
 	view_type: string;
@@ -13,7 +13,7 @@ export interface FetchWeeklyTasksProps {
 export const fetchWeeklyTasks = async (
 	props: FetchWeeklyTasksProps
 ): Promise<WeeklyTasksResponse> => {
-	const headers = setHeaders();
+	const headers = api.setHeaders();
 	const params = new URLSearchParams(Object.entries(props));
 
 	const url = `${PUBLIC_API_URL}/users/tasks/weekly?${params.toString()}`;
@@ -30,7 +30,7 @@ export const createTask = async (body: CreateTaskProps): Promise<Task> => {
 	if (!body.label_id) delete body.label_id;
 	if (!body.project_id) delete body.project_id;
 
-	const headers = setHeaders();
+	const headers = api.setHeaders();
 	const url = `${PUBLIC_API_URL}/users/tasks`;
 	const res = await fetch(url, {
 		method: 'POST',
@@ -43,8 +43,8 @@ export const createTask = async (body: CreateTaskProps): Promise<Task> => {
 	return res.json();
 };
 
-export const updateTask = async (task_id: string, body: UpdateTaskProps): Promise<Task> => {
-	const headers = setHeaders();
+export const updateTask = async (task_id: string, body: Partial<Task>): Promise<Task> => {
+	const headers = api.setHeaders();
 	const url = `${PUBLIC_API_URL}/users/tasks/${task_id}`;
 	const res = await fetch(url, {
 		method: 'PATCH',

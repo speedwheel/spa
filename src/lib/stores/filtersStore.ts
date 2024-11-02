@@ -1,9 +1,21 @@
-import { writable, derived } from 'svelte/store';
+import { writable, derived, type Writable, type Readable } from 'svelte/store';
 import type { BaseFilter } from '$lib/types/sharedTypes';
 import type { Label } from '$lib/types/label';
 import type { Project } from '$lib/types/project';
+import api from '$lib/api/api';
+import type { DropdownOption } from '$lib/types/dropdowns';
 
-function createEntityStore<T extends BaseFilter>() {
+export interface EntityStore<T> extends Writable<T[]> {
+	addEntity: (entity: T) => void;
+	getEntityById: (id: string) => T | undefined;
+	clear: () => void;
+	dropdownOptionsStore: Readable<DropdownOption[]>;
+	initialize: () => Promise<void>;
+}
+
+function createEntityStore<T extends BaseFilter>(
+	fetchFunction: () => Promise<{ data: T[] }>
+): EntityStore<T> {
 	const { subscribe, set, update } = writable<T[]>([]);
 
 	// Add a new entity
@@ -39,16 +51,30 @@ function createEntityStore<T extends BaseFilter>() {
 		}));
 	});
 
+	// Initialize the store with data from the API
+	const initialize = async () => {
+		try {
+			const response = await fetchFunction();
+			set(response.data);
+		} catch (error) {
+			console.error('Failed to initialize store:', error);
+		}
+	};
+
 	return {
 		set: customSet,
 		subscribe,
+		update,
 		addEntity,
 		getEntityById,
 		clear,
-		dropdownOptionsStore
+		dropdownOptionsStore,
+		initialize
 	};
 }
 
 // Create the store instances for labels and projects
-export const labelsStore = createEntityStore<Label>();
-export const projectsStore = createEntityStore<Project>();
+export const labelsStore: EntityStore<Label> = createEntityStore<Label>(api.labels.fetchLabels);
+export const projectsStore: EntityStore<Project> = createEntityStore<Project>(
+	api.projects.fetchProjects
+);

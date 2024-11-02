@@ -5,6 +5,14 @@
 	import { labelsStore, projectsStore } from '$lib/stores/filtersStore';
 	import SidebarFilter from '$lib/components/Sidebars/LeftSidebar/SidebarFilter.svelte';
 	import { selectedLabelStore, selectedProjectStore } from '$lib/stores/selectedFiltersStore';
+
+	selectedProjectStore.subscribe((value) => {
+		console.log('selectedProjectStore', value);
+	});
+
+	// setTimeout(() => {
+	// 	labelsStore.addEntity({ id: '1', name: 'Personal', color: 'blue', created_at: new Date() });
+	// }, 3000);
 </script>
 
 {#snippet labelIcon(color: string)}
@@ -79,14 +87,14 @@
 			</div>
 
 			<SidebarFilter
-				bind:selectedFilter={$selectedLabelStore}
-				items={$labelsStore}
+				selectedFilter={selectedLabelStore}
+				items={labelsStore}
 				icon={labelIcon}
 				label="Labels"
 			/>
 			<SidebarFilter
-				bind:selectedFilter={$selectedProjectStore}
-				items={$projectsStore}
+				selectedFilter={selectedProjectStore}
+				items={projectsStore}
 				icon={projectIcon}
 				label="Projects"
 			/>

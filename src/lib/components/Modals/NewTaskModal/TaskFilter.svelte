@@ -1,20 +1,20 @@
 <script lang="ts">
 	import type { DropdownOption } from '$lib/types/dropdowns';
-	import type { NewTaskModalData } from '$lib/types/modals';
 	import CheckOutline from 'flowbite-svelte-icons/CheckOutline.svelte';
 	import type { Snippet } from 'svelte';
-	import { Icon, XMark } from 'svelte-hero-icons';
+	import { Icon, XMark, ChevronDown } from 'svelte-hero-icons';
 	import Select from 'svelte-select';
 
 	interface Props {
-		newTask: NewTaskModalData;
+		value: DropdownOption | null;
 		dropdownOptions: DropdownOption[];
 		placeholder: string;
-		key: keyof NewTaskModalData;
 		icon: Snippet<[any]>;
+		class?: string;
+		showChevron?: boolean;
 	}
 
-	let { newTask: newTask = $bindable(), dropdownOptions, placeholder, key, icon }: Props = $props();
+	let { value = $bindable(), dropdownOptions, placeholder, icon, ...props }: Props = $props();
 
 	let floatingConfig = {
 		strategy: 'fixed'
@@ -32,21 +32,24 @@
 	clearable={true}
 	{placeholder}
 	searchable={true}
-	bind:value={newTask[key]}
-	class="tickup-select"
+	bind:value
+	class={`tickup-select ${props.class}`}
+	showChevron={props.showChevron}
 	--height="32px"
 >
+	<div class={`mr-1 text-${value?.color}`} slot="prepend">{@render icon?.('neutral-400')}</div>
+
 	<div slot="item" let:item>
 		{@render icon?.(item)}
 		{item.label}
 
-		{#if item.value == newTask.priority.value}
+		{#if item.value == value?.value}
 			<CheckOutline class="ml-2 h-5 w-5 dark:text-accent-purple-2" />
 		{/if}
 	</div>
 
 	<div slot="selection" let:selection>
-		{@render icon?.(selection)}
+		<!-- {@render icon?.(selection)} -->
 		{selection.label}
 	</div>
 

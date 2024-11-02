@@ -2,29 +2,16 @@
 	import '$lib/fonts';
 	import '../../app.css';
 
-	import Logo from '$lib/static/images/Logo.svelte';
-	import MenuIcon from '$lib/static/images/MenuIcon.svelte';
-	import avatar from '$lib/static/images/avatar.png';
-	import EditIcon from '$lib/static/images/EditIcon.svelte';
+	import Logo from '../../static/images/Logo.svelte';
+	import MenuIcon from '../../static/images/MenuIcon.svelte';
+	import avatar from '../../static/images/avatar.png';
+	import EditIcon from '../../static/images/EditIcon.svelte';
 	import { Icon, MagnifyingGlass } from 'svelte-hero-icons';
-	import api from '$lib/api/api';
-	import { labelsStore, projectsStore } from '$lib/stores/filtersStore';
 
 	document.body.classList.add('flex', 'flex-col', 'h-full', 'select-none', 'dark:bg-neutral-800');
 	document.documentElement.classList.add('dark', 'custom-scrollbars', 'h-full');
 
-	async function initializeApp() {
-		try {
-			const [labels, projects] = await Promise.all([
-				api.labels.fetchLabels(),
-				api.projects.fetchProjects()
-			]);
-			labelsStore.set(labels.data);
-			projectsStore.set(projects.data);
-		} catch (error) {
-			console.error('Failed to fetch labels:', error);
-		}
-	}
+	async function initializeApp() {}
 
 	initializeApp();
 </script>

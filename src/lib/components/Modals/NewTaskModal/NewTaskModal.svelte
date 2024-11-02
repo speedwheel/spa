@@ -11,7 +11,6 @@
 	import { priorities } from '$lib/constants/priorities';
 	import { Icon, XMark, PlusSmall, Tag, Hashtag } from 'svelte-hero-icons';
 	import TaskNameInput from './TaskNameInput.svelte';
-	import type { TaskModalData } from '$lib/types/modals';
 	import { type DropdownOption } from '$lib/types/dropdowns';
 	import TaskFilter from './TaskFilter.svelte';
 	import { onlyDate } from '$lib/utils/dateFormatter';
@@ -21,22 +20,12 @@
 
 	const openModalHotKey = 'a';
 
-	let modalDataName = $state('');
-	let modalDataDescription = $state('');
-	let modalDataPriority = $state(priorities[1]);
-	let modalDataLabel = $state(null);
-	let modalDataProject = $state(null);
-	let modalDataPanelDate = $state(new Date());
-	const emptyNewTask: TaskModalData = {
-		name: '',
-		description: '',
-		priority: priorities[1],
-		label: null,
-		project: null,
-		panelDate: new Date()
-	};
-
-	let newTask: TaskModalData = $state(emptyNewTask);
+	let modalDataName: string | null = $state('');
+	let modalDataDescription: string | null = $state('');
+	let modalDataPriority: DropdownOption = $state(priorities[1]);
+	let modalDataLabel: DropdownOption | null = $state(null);
+	let modalDataProject: DropdownOption | null = $state(null);
+	let modalDataPanelDate: Date | null = $state(new Date());
 
 	let labelDropdownOptions: DropdownOption[] = $state([]);
 	let projectDropdownOptions: DropdownOption[] = $state([]);
@@ -50,15 +39,14 @@
 		projectDropdownOptions = options;
 	});
 
-	const labelKey: keyof TaskModalData = 'label';
-	const projectKey: keyof TaskModalData = 'project';
-
-	// $effect(() => {
-	// 	console.log(newTask.name);
-	// 	if (newTask.name) {
-	// 		api.tasks.updateTask('newTask', { name: newTask.name });
-	// 	}
-	// });
+	function onOpen() {
+		modalDataName = '';
+		modalDataDescription = '';
+		modalDataPriority = priorities[1];
+		modalDataLabel = null;
+		modalDataProject = null;
+		modalDataPanelDate = new Date();
+	}
 
 	onMount(() => {
 		hotkeys(openModalHotKey, () => {
@@ -71,28 +59,46 @@
 	});
 
 	function onClose() {
-		newTask = emptyNewTask;
+		// modalDataName = $state('');
+		// modalDataDescription = $state('');
+		// modalDataPriority = $state(priorities[1]);
+		// modalDataLabel = $state(null);
+		// modalDataProject = $state(null);
+		// modalDataPanelDate = $state(new Date());
 		goto('/');
 	}
 
 	function createNewTask() {
-		(async (t: TaskModalData) => {
-			if (!t.name) {
+		(async (
+			name: string | null,
+			description: string | null,
+			priority: DropdownOption,
+			label: DropdownOption | null,
+			project: DropdownOption | null,
+			panelDate: Date | null
+		) => {
+			if (!name) {
 				return;
 			}
 
-			const task = await api.tasks.createTask({
-				name: t.name,
-				description: t.description,
-				view_type: $viewTypeStore,
-				panel_date: onlyDate(t.panelDate),
-				priority: t.priority.value,
-				label_id: t.label?.value,
-				project_id: t.project?.value
-			});
 			isNewTaskOpenStore.set(false);
-			weeklyTasksStore.addTask(task);
-		})(newTask);
+			weeklyTasksStore.addTask({
+				name: name,
+				description: description,
+				view_type: $viewTypeStore,
+				panel_date: onlyDate(panelDate),
+				priority: priority.value,
+				label_id: label?.value,
+				project_id: project?.value
+			});
+		})(
+			modalDataName,
+			modalDataDescription,
+			modalDataPriority,
+			modalDataLabel,
+			modalDataProject,
+			modalDataPanelDate
+		);
 	}
 </script>
 
@@ -107,8 +113,8 @@
 <Modal
 	title="Add task"
 	bind:open={$isNewTaskOpenStore}
-	on:close={() => onClose()}
-	on:open={() => {}}
+	on:close={onClose}
+	on:open={onOpen}
 	outsideclose
 	size="md"
 	classBody="dark:bg-neutral-900"
@@ -116,38 +122,34 @@
 	classHeader="dark:bg-neutral-900 dark:text-neutral-100"
 >
 	<!-- 	Task name input -->
-	<TaskNameInput bind:taskModalData={newTask} on:enterKeyPressed={createNewTask} />
+	<TaskNameInput bind:value={modalDataName} on:enterKeyPressed={createNewTask} />
 
 	<!-- 	Task description input -->
-	<TaskDescriptionInput bind:taskModalData={newTask} />
+	<TaskDescriptionInput bind:value={modalDataDescription} />
 	<div class="flex gap-4">
 		<!-- Task priority select -->
-		<TaskPriority bind:taskModalData={newTask} />
+		<TaskPriority bind:value={modalDataPriority} />
 
 		<!-- Task label select -->
 		<TaskFilter
-			bind:newTask
+			bind:value={modalDataLabel}
 			dropdownOptions={labelDropdownOptions}
 			placeholder="Labels"
-			key={labelKey}
 			icon={iconLabel}
 		/>
 
 		<!-- Task project select -->
 		<TaskFilter
-			bind:newTask
+			bind:value={modalDataProject}
 			dropdownOptions={projectDropdownOptions}
 			placeholder="Projects"
-			key={projectKey}
 			icon={iconProject}
 		/>
 
 		<!-- Task Date Picker -->
-		<div
-			class="tickup-datepicker [&_#datepicker-dropdown]:!fixed dark:[&_.bg-primary-700]:!bg-accent-purple-1 dark:[&_.bg-red-700]:!bg-accent-purple-2 [&_input]:h-8 dark:[&_input]:dark:!border-neutral-700 dark:[&_input]:bg-neutral-900"
-		>
+		<div class="tickup-datepicker">
 			<Datepicker
-				bind:value={newTask.panelDate}
+				bind:value={modalDataPanelDate}
 				dateFormat={{ year: '2-digit', month: 'short', day: '2-digit' }}
 				defaultDate={new Date()}
 				autohide={false}
@@ -166,7 +168,7 @@
 			</button>
 			<button
 				onclick={createNewTask}
-				disabled={!newTask.name}
+				disabled={!modalDataName}
 				class="me-2 inline-flex items-center gap-1 rounded-lg bg-accent-purple-1 px-5 py-2.5 text-center text-sm font-medium disabled:opacity-45 dark:text-neutral-100"
 			>
 				<Icon src={PlusSmall} class="size-5 text-neutral-100" />

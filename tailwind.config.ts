@@ -43,6 +43,10 @@ export default {
 					800: '#CC4522',
 					900: '#A5371B'
 				},
+				neutral: {
+					750: '#3D454F', // Custom gray color
+					850: '#171717' // Custom gray color
+				},
 				// tickup accent colors
 				accent: {
 					purple: {

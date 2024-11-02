@@ -20,3 +20,10 @@ export const PriorityColors: Record<Priority, string> = {
 	[Priority.High]: 'yellow-400',
 	[Priority.Urgent]: 'red-400'
 };
+
+export const PRIORITIES = {
+	urgent: 'urgent',
+	high: 'high',
+	normal: 'normal',
+	low: 'low'
+} as const;

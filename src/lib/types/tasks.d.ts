@@ -5,7 +5,7 @@ import type { Project } from './project';
 
 export interface Task {
 	id: string;
-	name: strin | null;
+	name: string | null;
 	description: string | null;
 	order_index: number;
 	view_type: ViewType;
@@ -13,7 +13,7 @@ export interface Task {
 	panel_date: string | null; // Consider using Date type if needed
 	user_id: string;
 	label_id: string | null;
-	project_id: string | null;
+	project_id: string;
 	google_calendar: TaskGoogleCalendar | null;
 	clickup: TaskClickup | null;
 	done: boolean;

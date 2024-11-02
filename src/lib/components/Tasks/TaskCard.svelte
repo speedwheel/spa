@@ -22,7 +22,7 @@
 
 <button onclick={openTaskModal} class="task-card task-card-hover">
 	<div class="flex w-full justify-between gap-1 pb-4 text-left">
-		<div class="flex-1 text-sm font-normal text-neutral-900 dark:text-neutral-50">{task.name}</div>
+		<div class="flex-1 text-sm font-normal text-neutral-900 dark:text-neutral-50">{task?.name}</div>
 		<div class="flex-initial">
 			<div class="rounded bg-neutral-700 px-2 py-[3px] text-xs text-neutral-400">0:37/ 0:15</div>
 		</div>

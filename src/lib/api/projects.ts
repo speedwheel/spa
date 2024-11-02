@@ -1,10 +1,10 @@
 import type { ProjectsResponse } from '$lib/types/project';
-import { setHeaders } from './api';
+import { api } from './api';
 import { PUBLIC_API_URL } from '$env/static/public';
 import { handleErrorResponse } from '$lib/utils/errorHandling';
 
 export const fetchProjects = async (): Promise<ProjectsResponse> => {
-	const headers = setHeaders();
+	const headers = api.setHeaders();
 
 	const url = `${PUBLIC_API_URL}/users/tasks/projects`;
 	const res = await fetch(url, { headers });

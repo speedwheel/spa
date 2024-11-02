@@ -1,17 +1,20 @@
 <script lang="ts">
 	import { priorities, Priority, PriorityColors } from '$lib/constants/priorities';
-	import type { TaskModalData } from '$lib/types/modals';
+	import type { DropdownOption } from '$lib/types/dropdowns';
 	import CheckOutline from 'flowbite-svelte-icons/CheckOutline.svelte';
 	import { Flag, Icon, XMark } from 'svelte-hero-icons';
 	import Select from 'svelte-select';
 
 	interface Props {
-		taskModalData: TaskModalData;
+		value: DropdownOption | null;
+		class?: string;
+		showChevron?: boolean;
 	}
 
-	let { taskModalData = $bindable() }: Props = $props();
+	let { value = $bindable(), ...props }: Props = $props();
 	let clearable = $derived.by(() => {
-		return taskModalData.priority?.value !== priorities[1].value;
+		if (!value) return;
+		return value.value !== priorities[1].value;
 	});
 
 	let floatingConfig = {
@@ -22,23 +25,24 @@
 <Select
 	on:clear={() => {
 		setTimeout(() => {
-			taskModalData.priority = priorities[1];
-		}, 0);
+			value = priorities[1];
+		}, 1);
 	}}
 	items={priorities}
 	{floatingConfig}
 	{clearable}
 	placeholder=""
-	bind:value={taskModalData.priority}
+	bind:value
 	searchable={false}
-	class="tickup-select"
+	class={`tickup-select ${props.class}`}
 	--height="32px"
+	showChevron={props.showChevron}
 >
 	<div slot="item" let:item>
 		<Icon src={Flag} class={`size-4 text-${PriorityColors[item.value as Priority]}`} />
 		{item.label}
 
-		{#if item.value == taskModalData.priority.value}
+		{#if item.value == value?.value}
 			<CheckOutline class="ml-2 h-5 w-5 dark:text-accent-purple-2" />
 		{/if}
 	</div>

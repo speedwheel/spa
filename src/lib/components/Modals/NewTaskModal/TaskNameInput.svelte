@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { oneLiner } from '$lib/tiptap/customNodes';
 	import { createCustomPlaceholder } from '$lib/tiptap/extensions';
-	import type { TaskModalData } from '$lib/types/modals';
+
 	import { Editor } from '@tiptap/core';
 	import Paragraph from '@tiptap/extension-paragraph';
 
@@ -9,10 +9,10 @@
 	import { createEventDispatcher, onDestroy, onMount } from 'svelte';
 
 	interface Props {
-		taskModalData?: TaskModalData;
+		value: string | null;
 	}
 
-	let { taskModalData = $bindable() }: Props = $props();
+	let { value = $bindable() }: Props = $props();
 
 	let editorEl: HTMLElement;
 	let editor: Editor | null = null;
@@ -37,10 +37,9 @@
 				createCustomPlaceholder('Task name')
 			],
 			element: editorEl,
+			content: value,
 			onUpdate(props) {
-				if (taskModalData) {
-					taskModalData.name = props.editor.getText();
-				}
+				value = props.editor.getText();
 			},
 			onTransaction(transaction) {
 				editor = transaction.editor;
@@ -52,7 +51,7 @@
 			}
 		});
 
-		editor.commands.focus();
+		if (!value) editor.commands.focus();
 	});
 
 	onDestroy(() => {
