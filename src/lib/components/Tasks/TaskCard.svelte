@@ -7,7 +7,7 @@
 		task: Task;
 	}
 
-	let { task = $bindable() }: Props = $props();
+	let { task }: Props = $props();
 
 	function openTaskModal() {
 		editTaskStore.set(task);

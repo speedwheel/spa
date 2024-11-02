@@ -6,6 +6,5 @@
 
 <Header />
 <div class="container mx-auto py-4 text-center dark:text-neutral-100">
-	hello
 	{@render children()}
 </div>

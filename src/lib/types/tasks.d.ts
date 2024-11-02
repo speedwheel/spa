@@ -3,7 +3,7 @@ import type { Label } from './label';
 import type { Priority } from '$lib/constants/priorities';
 import type { Project } from './project';
 
-export interface Task {
+export type Task = {
 	id: string;
 	name: string | null;
 	description: string | null;
@@ -22,7 +22,7 @@ export interface Task {
 	label: Label | null; // Label can be null
 	project: Project | null; // Project can be null
 	actions: Action[]; // Replace with a specific type if known
-}
+};
 
 export interface TaskGoogleCalendar {
 	event_id: string;
@@ -51,13 +51,12 @@ export interface UpdateTaskProps {
 	project_id?: string | null;
 }
 
-export interface CreateTaskProps {
-	name: string | null;
+export type NewTaskProps = {
+	name: string;
 	view_type: ViewType;
-	panel_date?: string | null;
-	description?: string | null;
-	priority: Priority;
-	project_id?: string | null;
-	label_id?: string | null;
-	google_calendar?: TaskGoogleCalendar | null;
-}
+	panel_date: string;
+	description?: string;
+	priority?: Priority;
+	project_id?: string;
+	label_id?: string;
+};

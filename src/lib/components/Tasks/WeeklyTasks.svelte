@@ -10,12 +10,21 @@
 	import { Icon, Plus } from 'svelte-hero-icons';
 	import { getAppState } from '$lib/states/appState.svelte';
 
-	let columnsByDate: { [key: string]: HTMLElement } = {};
+	let columnsByDate: { [key: string]: HTMLElement } = $state({});
 	let scrollableElement: HTMLElement | null = null;
+	let appState = getAppState();
+
+	appState.loadTasks();
 
 	function handleScrollLeft() {
 		scrollableElement?.scrollBy(-16, 0);
 	}
+
+	$effect(() => {
+		if (!appState.tasks.isLoading) {
+			initializeWeeklyTasksPromise();
+		}
+	});
 
 	const initializeWeeklyTasksPromise = async () => {
 		await weeklyTasksStore.initialize();
@@ -24,9 +33,6 @@
 		});
 		setupSortableColumns();
 	};
-
-	let appState = getAppState();
-	appState.loadTasks();
 
 	// setTimeout(() => {
 	// 	console.log(
@@ -72,13 +78,13 @@
 
 <main bind:this={scrollableElement} class="flex flex-1 overflow-auto p-4">
 	<div class="flex gap-4">
-		{#await initializeWeeklyTasksPromise()}
+		{#if appState.tasks.isLoading}
 			{#each new Array(7) as _}
 				<ListPlaceholder
 					divClass="dark:bg-neutral-900 space-y-4 p-4 w-72 rounded-lg border border-neutral-200 divide-y divide-neutral-200 shadow animate-pulse dark:divide-neutral-700 md:p-6 dark:border-neutral-700"
 				/>
 			{/each}
-		{:then}
+		{:else}
 			{#each Object.entries(appState.tasksByDate) as [date, tasks]}
 				<div class="flex w-72 flex-col rounded-lg py-4 pb-0 dark:bg-neutral-900">
 					<div class="flex-4 flex flex-1 flex-col overflow-y-auto overflow-x-hidden">
@@ -106,21 +112,14 @@
 							bind:this={columnsByDate[onlyDate(date)]}
 							class="relative flex flex-1 flex-col gap-4 overflow-y-auto overflow-x-hidden pt-4"
 						>
-							{#each tasks as task, i (i)}
-								<TaskCard bind:task />
+							{#each tasks as _, i (i)}
+								<TaskCard task={tasks[i]} />
 							{/each}
 							<div class="order-last flex-1 !transform-none bg-neutral-800"></div>
 						</div>
 					</div>
 				</div>
 			{/each}
-		{:catch}
-			<div>error</div>
-		{/await}
+		{/if}
 	</div>
-	{#each Object.values(appState.tasksByDate) as tasks}
-		{#each tasks as task}
-			{task.name}
-		{/each}
-	{/each}
 </main>

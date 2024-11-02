@@ -1,24 +1,22 @@
 <script lang="ts">
 	import '$lib/fonts';
 	import '../../app.css';
+	import { goto } from '$app/navigation';
 
 	import Logo from '../../static/images/Logo.svelte';
 	import MenuIcon from '../../static/images/MenuIcon.svelte';
 	import avatar from '../../static/images/avatar.png';
 	import EditIcon from '../../static/images/EditIcon.svelte';
 	import { Icon, MagnifyingGlass } from 'svelte-hero-icons';
+	import { page } from '$app/stores';
 
 	document.body.classList.add('flex', 'flex-col', 'h-full', 'select-none', 'dark:bg-neutral-800');
 	document.documentElement.classList.add('dark', 'custom-scrollbars', 'h-full');
-
-	async function initializeApp() {}
-
-	initializeApp();
 </script>
 
 <header class="flex items-center border-b px-4 py-4 dark:border-b-neutral-700">
 	<div class="flex w-72 items-center justify-between">
-		<a href="/">
+		<a href="/t/3434">
 			<Logo className="h-9" />
 		</a>
 		<button

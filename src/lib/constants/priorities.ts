@@ -27,3 +27,5 @@ export const PRIORITIES = {
 	normal: 'normal',
 	low: 'low'
 } as const;
+
+// export type Priority = (typeof PRIORITIES)[keyof typeof PRIORITIES];

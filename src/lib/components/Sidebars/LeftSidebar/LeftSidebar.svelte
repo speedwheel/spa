@@ -5,6 +5,9 @@
 	import { labelsStore, projectsStore } from '$lib/stores/filtersStore';
 	import SidebarFilter from '$lib/components/Sidebars/LeftSidebar/SidebarFilter.svelte';
 	import { selectedLabelStore, selectedProjectStore } from '$lib/stores/selectedFiltersStore';
+	import { getAppState } from '$lib/states/appState.svelte';
+
+	const appState = getAppState();
 
 	selectedProjectStore.subscribe((value) => {
 		console.log('selectedProjectStore', value);
@@ -36,7 +39,7 @@
 							type="radio"
 							name="view"
 							value="work"
-							bind:group={$viewTypeStore}
+							bind:group={appState.selectedViewType}
 							class="peer sr-only"
 						/>
 						<label
@@ -53,7 +56,7 @@
 							type="radio"
 							name="view"
 							value="personal"
-							bind:group={$viewTypeStore}
+							bind:group={appState.selectedViewType}
 							class="peer sr-only"
 						/>
 						<label
@@ -87,13 +90,13 @@
 			</div>
 
 			<SidebarFilter
-				selectedFilter={selectedLabelStore}
+				filterType="selectedLabel"
 				items={labelsStore}
 				icon={labelIcon}
 				label="Labels"
 			/>
 			<SidebarFilter
-				selectedFilter={selectedProjectStore}
+				filterType="selectedProject"
 				items={projectsStore}
 				icon={projectIcon}
 				label="Projects"

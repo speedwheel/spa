@@ -5,23 +5,22 @@
 	import { onMount } from 'svelte';
 	import { isNewTaskOpenStore } from '$lib/stores/taskModalsStore';
 	import { goto } from '$app/navigation';
-	import api from '$lib/api/api';
-	import { weeklyTasksStore } from '$lib/stores/tasksStore';
 	import TaskDescriptionInput from './TaskDescriptionInput.svelte';
 	import { priorities } from '$lib/constants/priorities';
 	import { Icon, XMark, PlusSmall, Tag, Hashtag } from 'svelte-hero-icons';
 	import TaskNameInput from './TaskNameInput.svelte';
-	import { type DropdownOption } from '$lib/types/dropdowns';
+	import { type DropdownOption } from '$lib/types/misc';
 	import TaskFilter from './TaskFilter.svelte';
 	import { onlyDate } from '$lib/utils/dateFormatter';
 	import { labelsStore, projectsStore } from '$lib/stores/filtersStore';
 	import { Datepicker } from 'flowbite-svelte';
-	import { viewTypeStore } from '$lib/stores/viewTypeStore';
+	import { getAppState } from '$lib/states/appState.svelte';
+	import { Spinner } from 'flowbite-svelte';
 
 	const openModalHotKey = 'a';
 
-	let modalDataName: string | null = $state('');
-	let modalDataDescription: string | null = $state('');
+	let modalDataName: string = $state('');
+	let modalDataDescription: string = $state('');
 	let modalDataPriority: DropdownOption = $state(priorities[1]);
 	let modalDataLabel: DropdownOption | null = $state(null);
 	let modalDataProject: DropdownOption | null = $state(null);
@@ -29,6 +28,8 @@
 
 	let labelDropdownOptions: DropdownOption[] = $state([]);
 	let projectDropdownOptions: DropdownOption[] = $state([]);
+
+	const appState = getAppState();
 
 	// Subscribe to the dropdownOptionsStore
 	labelsStore.dropdownOptionsStore.subscribe((options) => {
@@ -68,37 +69,26 @@
 		goto('/');
 	}
 
-	function createNewTask() {
-		(async (
-			name: string | null,
-			description: string | null,
-			priority: DropdownOption,
-			label: DropdownOption | null,
-			project: DropdownOption | null,
-			panelDate: Date | null
-		) => {
-			if (!name) {
-				return;
-			}
-
+	$effect(() => {
+		if (!appState.isLoadingCreateTask) {
 			isNewTaskOpenStore.set(false);
-			weeklyTasksStore.addTask({
-				name: name,
-				description: description,
-				view_type: $viewTypeStore,
-				panel_date: onlyDate(panelDate),
-				priority: priority.value,
-				label_id: label?.value,
-				project_id: project?.value
-			});
-		})(
-			modalDataName,
-			modalDataDescription,
-			modalDataPriority,
-			modalDataLabel,
-			modalDataProject,
-			modalDataPanelDate
-		);
+		}
+	});
+
+	function createNewTask() {
+		if (!modalDataName) {
+			return;
+		}
+
+		appState.task = {
+			name: modalDataName,
+			description: modalDataDescription,
+			view_type: appState.selectedViewType,
+			panel_date: onlyDate(modalDataPanelDate),
+			priority: modalDataPriority.value,
+			label_id: modalDataLabel?.value,
+			project_id: modalDataProject?.value
+		};
 	}
 </script>
 
@@ -171,9 +161,14 @@
 				disabled={!modalDataName}
 				class="me-2 inline-flex items-center gap-1 rounded-lg bg-accent-purple-1 px-5 py-2.5 text-center text-sm font-medium disabled:opacity-45 dark:text-neutral-100"
 			>
-				<Icon src={PlusSmall} class="size-5 text-neutral-100" />
-				Add task</button
-			>
+				{#if appState.isLoadingCreateTask}
+					<Spinner class="me-3" size="4" color="white" />
+					Loading ...
+				{:else}
+					<Icon src={PlusSmall} class="size-5 text-neutral-100" />
+					Add Task
+				{/if}
+			</button>
 		</div>
 	</svelte:fragment>
 </Modal>

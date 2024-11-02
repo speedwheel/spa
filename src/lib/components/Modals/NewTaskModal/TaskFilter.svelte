@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { DropdownOption } from '$lib/types/dropdowns';
+	import type { DropdownOption } from '$lib/types/misc';
 	import CheckOutline from 'flowbite-svelte-icons/CheckOutline.svelte';
 	import type { Snippet } from 'svelte';
 	import { Icon, XMark, ChevronDown } from 'svelte-hero-icons';

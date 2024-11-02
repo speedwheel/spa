@@ -6,15 +6,19 @@
 	import type { Project } from '$lib/types/project';
 	import type { Label } from '$lib/types/label';
 	import type { Writable } from 'svelte/store';
+	import { getAppState } from '$lib/states/appState.svelte';
+	import filter from 'svelte-select/filter';
 
 	interface Props {
-		selectedFilter: Writable<string>;
+		filterType: 'selectedLabel' | 'selectedProject';
 		items: EntityStore<Label | Project>;
 		label: string;
 		icon: Snippet<[any]>;
 	}
 
-	let { selectedFilter, items, label, icon }: Props = $props();
+	let { filterType, items, label, icon }: Props = $props();
+
+	const appState = getAppState();
 
 	(async () => {
 		await items.initialize();
@@ -30,18 +34,18 @@
 >
 	<button
 		onclick={() => {
-			$selectedFilter = '';
+			appState[filterType] = '';
 		}}
-		class:bg-neutral-900={$selectedFilter === ''}
+		class:bg-neutral-900={appState[filterType] === ''}
 		class="flex w-full items-center gap-1.5 rounded-md px-3 py-2 text-sm transition duration-75 dark:text-neutral-200 dark:hover:bg-neutral-900"
 		type="button"><Icon src={Tag} class={`size-4 text-blue-400`} />all</button
 	>
 	{#each $items as item, i (i)}
 		<button
 			onclick={() => {
-				$selectedFilter = item.id;
+				appState[filterType] = item.id;
 			}}
-			class:bg-neutral-900={$selectedFilter === item.id}
+			class:bg-neutral-900={appState[filterType] === item.id}
 			class="flex w-full items-center gap-1.5 rounded-md px-3 py-2 text-sm transition duration-75 dark:text-neutral-200 dark:hover:bg-neutral-900"
 			type="button">{@render icon?.(item.color)} {item.name}</button
 		>
