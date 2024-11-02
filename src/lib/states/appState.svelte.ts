@@ -9,7 +9,7 @@ type TasksResp = {
 	data: Task[];
 };
 
-export function createAppState() {
+function createAppState() {
 	const dateNow = new Date();
 	let tasks: Record<string, Task> = $state({});
 	const viewType: ViewType = $state('work');

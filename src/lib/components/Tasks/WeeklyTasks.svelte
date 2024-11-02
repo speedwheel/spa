@@ -5,9 +5,10 @@
 	import { format } from 'date-fns/format';
 	import TaskCard from './TaskCard.svelte';
 	import { onlyDate } from '$lib/utils/dateFormatter';
-	import { filteredTasksStore } from '$lib/stores/tasksStore';
+
 	import { ListPlaceholder } from 'flowbite-svelte';
 	import { Icon, Plus } from 'svelte-hero-icons';
+	import { getAppState } from '$lib/states/appState.svelte';
 
 	let columnsByDate: { [key: string]: HTMLElement } = {};
 	let scrollableElement: HTMLElement | null = null;
@@ -23,6 +24,9 @@
 		});
 		setupSortableColumns();
 	};
+
+	let appState = getAppState();
+	appState.loadTasks();
 
 	// setTimeout(() => {
 	// 	console.log(
@@ -75,19 +79,19 @@
 				/>
 			{/each}
 		{:then}
-			{#each $filteredTasksStore as tasksColumn (tasksColumn.date)}
+			{#each Object.entries(appState.tasksByDate) as [date, tasks]}
 				<div class="flex w-72 flex-col rounded-lg py-4 pb-0 dark:bg-neutral-900">
 					<div class="flex-4 flex flex-1 flex-col overflow-y-auto overflow-x-hidden">
 						<div class="px-4 pb-4">
 							<div class="text-base font-semibold text-neutral-900 dark:text-white">
-								<span>{format(tasksColumn.date, 'EEEE')}</span>
+								<span>{format(date, 'EEEE')}</span>
 								<span
 									class="daily-task-count ml-1.5 inline-flex h-4 w-4 items-center justify-center rounded-full bg-neutral-700 text-2xs text-neutral-400"
 									>3</span
 								>
 							</div>
 							<div class="mb-4 text-xs dark:text-neutral-400">
-								{format(tasksColumn.date, 'MMM d')}
+								{format(date, 'MMM d')}
 							</div>
 							<button
 								type="button"
@@ -99,10 +103,10 @@
 						</div>
 
 						<div
-							bind:this={columnsByDate[onlyDate(tasksColumn.date)]}
+							bind:this={columnsByDate[onlyDate(date)]}
 							class="relative flex flex-1 flex-col gap-4 overflow-y-auto overflow-x-hidden pt-4"
 						>
-							{#each tasksColumn.tasks as task, i (i)}
+							{#each tasks as task, i (i)}
 								<TaskCard bind:task />
 							{/each}
 							<div class="order-last flex-1 !transform-none bg-neutral-800"></div>
@@ -114,4 +118,9 @@
 			<div>error</div>
 		{/await}
 	</div>
+	{#each Object.values(appState.tasksByDate) as tasks}
+		{#each tasks as task}
+			{task.name}
+		{/each}
+	{/each}
 </main>
