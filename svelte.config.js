@@ -21,7 +21,7 @@ const config = {
 
 			pages: 'build',
 			assets: 'build',
-			fallback: "index.html",
+			fallback: undefined,
 			precompress: false,
 			strict: true,
 		},
