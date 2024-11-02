@@ -1,5 +1,5 @@
 <script lang="ts">
-	alert(1);
-</script>
+	import { isNewTaskOpenStore } from '$lib/stores/taskModalsStore';
 
-<div>Hello from the blog page!</div>
+	isNewTaskOpenStore.set(true);
+</script>

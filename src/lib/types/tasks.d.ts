@@ -56,7 +56,7 @@ export type NewTaskProps = {
 	view_type: ViewType;
 	panel_date: string;
 	description?: string;
-	priority?: Priority;
+	priority: Priority;
 	project_id?: string;
 	label_id?: string;
 };

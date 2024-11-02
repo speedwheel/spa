@@ -54,6 +54,7 @@
 				forceFallback: true,
 				draggable: '.task-card',
 				direction: 'vertical',
+
 				ghostClass: 'ghost-card',
 				easing: 'cubic-bezier(0, 0.55, 0.45, 1)',
 				onChoose(evt: SortableEvent) {

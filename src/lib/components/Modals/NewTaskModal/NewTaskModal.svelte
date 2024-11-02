@@ -6,7 +6,7 @@
 	import { isNewTaskOpenStore } from '$lib/stores/taskModalsStore';
 	import { goto } from '$app/navigation';
 	import TaskDescriptionInput from './TaskDescriptionInput.svelte';
-	import { priorities } from '$lib/constants/priorities';
+	import { priorities, Priority } from '$lib/constants/priorities';
 	import { Icon, XMark, PlusSmall, Tag, Hashtag } from 'svelte-hero-icons';
 	import TaskNameInput from './TaskNameInput.svelte';
 	import { type DropdownOption } from '$lib/types/misc';
@@ -66,14 +66,9 @@
 		// modalDataLabel = $state(null);
 		// modalDataProject = $state(null);
 		// modalDataPanelDate = $state(new Date());
+
 		goto('/');
 	}
-
-	$effect(() => {
-		if (!appState.isLoadingCreateTask) {
-			isNewTaskOpenStore.set(false);
-		}
-	});
 
 	function createNewTask() {
 		if (!modalDataName) {
@@ -85,7 +80,7 @@
 			description: modalDataDescription,
 			view_type: appState.selectedViewType,
 			panel_date: onlyDate(modalDataPanelDate),
-			priority: modalDataPriority.value,
+			priority: modalDataPriority.value as Priority,
 			label_id: modalDataLabel?.value,
 			project_id: modalDataProject?.value
 		};

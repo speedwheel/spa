@@ -1,10 +1,11 @@
 import { PUBLIC_API_URL } from '$env/static/public';
 import api from '$lib/api/api';
-import type { NewTaskProps } from '$lib/types';
+import type { NewTaskProps } from '$lib/types/tasks';
 import type { Task } from '$lib/types/tasks';
 import type { ViewType } from '$lib/types/viewType';
 import { onlyDate } from '$lib/utils/dateFormatter';
 import { addDays, format, subDays } from 'date-fns';
+import { isNewTaskOpenStore } from '$lib/stores/taskModalsStore';
 
 type AsyncData<T> = {
 	data: Record<string, T>;
@@ -99,6 +100,7 @@ function createAppState() {
 
 		const newTask: Task = await res.json();
 		isLoadingCreateTask = false;
+		isNewTaskOpenStore.set(false);
 
 		const taskIdsTobeUpdated: string[] = [];
 		// get the tasks with the same date and view_type

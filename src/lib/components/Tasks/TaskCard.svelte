@@ -20,7 +20,7 @@
 	}
 </script>
 
-<button onclick={openTaskModal} class="task-card task-card-hover">
+<a href={`/t/${task.id}`} class="task-card task-card-hover">
 	<div class="flex w-full justify-between gap-1 pb-4 text-left">
 		<div class="flex-1 text-sm font-normal text-neutral-900 dark:text-neutral-50">{task?.name}</div>
 		<div class="flex-initial">
@@ -45,4 +45,4 @@
 			</div>
 		</div>
 	</div>
-</button>
+</a>
