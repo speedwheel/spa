@@ -9,7 +9,6 @@
 	import { type DropdownOption } from '$lib/types/misc';
 	import TaskFilter from '../inputs/TaskFilter.svelte';
 	import { onlyDate } from '$lib/utils/dateFormatter';
-	import { labelsStore, projectsStore } from '$lib/stores/filtersStore';
 	import { Datepicker } from 'flowbite-svelte';
 	import { getAppState } from '$lib/states/appState.svelte';
 	import { Spinner } from 'flowbite-svelte';
@@ -23,20 +22,8 @@
 	let modalDataProject: DropdownOption | null = $state(null);
 	let modalDataPanelDate: Date | null = $state(new Date());
 
-	let labelDropdownOptions: DropdownOption[] = $state([]);
-	let projectDropdownOptions: DropdownOption[] = $state([]);
-
 	const appState = getAppState();
 	const modalState = getModalState();
-
-	// Subscribe to the dropdownOptionsStore
-	labelsStore.dropdownOptionsStore.subscribe((options) => {
-		labelDropdownOptions = options;
-	});
-
-	projectsStore.dropdownOptionsStore.subscribe((options) => {
-		projectDropdownOptions = options;
-	});
 
 	watch(
 		() => appState.isLoadingCreateTask,
@@ -58,7 +45,7 @@
 			return;
 		}
 
-		appState.task = {
+		appState.createTask({
 			name: modalDataName,
 			description: modalDataDescription,
 			view_type: appState.selectedViewType,
@@ -66,7 +53,7 @@
 			priority: modalDataPriority.value as Priority,
 			label_id: modalDataLabel?.value,
 			project_id: modalDataProject?.value
-		};
+		});
 	}
 </script>
 
@@ -102,7 +89,7 @@
 		<!-- Task label select -->
 		<TaskFilter
 			bind:value={modalDataLabel}
-			dropdownOptions={labelDropdownOptions}
+			items={appState.labels.labelsDropdown}
 			placeholder="Labels"
 			icon={iconLabel}
 		/>
@@ -110,7 +97,7 @@
 		<!-- Task project select -->
 		<TaskFilter
 			bind:value={modalDataProject}
-			dropdownOptions={projectDropdownOptions}
+			items={appState.projects.projectsDropdown}
 			placeholder="Projects"
 			icon={iconProject}
 		/>

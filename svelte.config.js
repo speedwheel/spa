@@ -26,9 +26,9 @@ const config = {
 			strict: true,
 		},
 		),
-		// paths: {
-		// 	base: "/"
-		// },
+		paths: {
+			base: "/spa"
+		},
 	}
 };
 

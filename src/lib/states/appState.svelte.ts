@@ -5,8 +5,10 @@ import type { ViewType } from '$lib/types/viewType';
 import { onlyDate } from '$lib/utils/dateFormatter';
 import { addDays, format, subDays } from 'date-fns';
 import { createStateHistory } from '$lib/states/stateHistory.svelte';
+import type { BaseFilter } from '$lib/types/sharedTypes';
+import type { DropdownOption } from '$lib/types/dropdowns';
 
-type AsyncData<T> = {
+export type AsyncData<T> = {
 	data: Record<string, T>;
 	isLoading: boolean;
 };
@@ -26,6 +28,26 @@ function createAppState() {
 	let selectedLabel: string = $state('');
 	let selectedProject: string = $state('');
 	let isLoadingCreateTask = $state(false);
+	const labels: AsyncData<BaseFilter> = $state({ data: {}, isLoading: false });
+	const labelsDropdown: DropdownOption[] = $derived.by(() => {
+		return Object.values(labels.data).map((label) => {
+			return {
+				value: label.id,
+				label: label.name,
+				color: label.color
+			};
+		});
+	});
+	const projects: AsyncData<BaseFilter> = $state({ data: {}, isLoading: false });
+	const projectsDropdown: DropdownOption[] = $derived.by(() => {
+		return Object.values(projects.data).map((project) => {
+			return {
+				value: project.id,
+				label: project.name,
+				color: project.color
+			};
+		});
+	});
 	const tasksStateHistory = createStateHistory(
 		() => tasks,
 		(newTasks: AsyncData<Task>) => (tasks = newTasks),
@@ -204,8 +226,9 @@ function createAppState() {
 
 		// tasks.data['0192f8d0-0af9-703d-9899-f15404419f97'].order_index = 1;
 		// task.order_index = 0;
-		const clonedTasks = $state.snapshot(tasks);
+
 		tasksStateHistory.performAction(() => {
+			const clonedTasks = $state.snapshot(tasks);
 			if (!oldDate) return;
 			if (oldDate !== newDate) {
 				// Task moved to a different date
@@ -227,6 +250,9 @@ function createAppState() {
 						if (otherTask.view_type === task.view_type && otherTask.order_index >= newIndex) {
 							clonedTasks.data[otherTask.id].order_index += 1;
 						}
+						if (otherTask.view_type === task.view_type && otherTask.order_index < newIndex) {
+							clonedTasks.data[otherTask.id].order_index = otherTask.order_index;
+						}
 					});
 				}
 
@@ -237,20 +263,16 @@ function createAppState() {
 				// Task moved within the same date
 				const tasksWithSameDate = tasksByDate[oldDate];
 
-				if (newIndex > oldIndex) {
-					// Moving downwards
+				// Adjust order_index of tasks in the same date column
+				if (tasksWithSameDate.length > 0) {
 					tasksWithSameDate.forEach((otherTask) => {
 						if (
 							otherTask.view_type === task.view_type &&
 							otherTask.order_index > oldIndex &&
 							otherTask.order_index <= newIndex
 						) {
-							tasks.data[otherTask.id].order_index -= 1;
+							clonedTasks.data[otherTask.id].order_index -= 1;
 						}
-					});
-				} else if (newIndex < oldIndex) {
-					// Moving upwards
-					tasksWithSameDate.forEach((otherTask) => {
 						if (
 							otherTask.view_type === task.view_type &&
 							otherTask.order_index < oldIndex &&
@@ -297,8 +319,51 @@ function createAppState() {
 		}
 	}
 
+	async function loadFilters(type: 'labels' | 'projects') {
+		if (type === 'labels') labels.isLoading = true;
+		if (type === 'projects') projects.isLoading = true;
+
+		const headers = api.setHeaders();
+
+		const url = `${PUBLIC_API_URL}/users/tasks/${type}`;
+		let res;
+		try {
+			res = await fetch(url, { headers });
+		} catch (error) {
+			throw new Error(`Failed to fetch labels: ${error}`);
+		}
+
+		if (!res.ok) {
+			throw new Error('Failed to fetch labels');
+		}
+
+		if (type === 'labels') {
+			const resp: ApiResp<BaseFilter> = await res.json();
+			labels.data = resp.data.reduce((acc: Record<string, BaseFilter>, label: BaseFilter) => {
+				acc[label.id] = label;
+				return acc;
+			}, {});
+			labels.isLoading = false;
+		} else if (type === 'projects') {
+			const resp: ApiResp<BaseFilter> = await res.json();
+			projects.data = resp.data.reduce((acc: Record<string, BaseFilter>, project: BaseFilter) => {
+				acc[project.id] = project;
+				return acc;
+			}, {});
+			projects.isLoading = false;
+		}
+	}
+
+	// setTimeout(() => {
+	// 	labels = {
+	// 		data: {},
+	// 		isLoading: false
+	// 	};
+	// }, 1000);
+
 	return {
 		loadTasks,
+		loadFilters,
 		getTask(taskID: string) {
 			return tasks.data[taskID];
 		},
@@ -308,9 +373,7 @@ function createAppState() {
 		set tasks(newTasks: AsyncData<Task>) {
 			tasks = newTasks;
 		},
-		set task(props: Partial<Task>) {
-			createTask(props);
-		},
+		createTask,
 		updateTask,
 		get selectedViewType() {
 			return selectedViewType;
@@ -347,6 +410,18 @@ function createAppState() {
 		},
 		set baseDate(newDate: string) {
 			baseDate = newDate;
+		},
+		get labels() {
+			return {
+				labels: labels,
+				labelsDropdown: labelsDropdown
+			};
+		},
+		get projects() {
+			return {
+				projects: projects,
+				projectsDropdown: projectsDropdown
+			};
 		},
 		sortTasks
 	};

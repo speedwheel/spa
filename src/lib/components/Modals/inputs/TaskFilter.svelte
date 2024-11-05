@@ -1,5 +1,7 @@
 <script lang="ts">
+	import type { AsyncData } from '$lib/states/appState.svelte';
 	import type { DropdownOption } from '$lib/types/misc';
+	import type { BaseFilter } from '$lib/types/sharedTypes';
 	import CheckOutline from 'flowbite-svelte-icons/CheckOutline.svelte';
 	import { watch } from 'runed';
 	import { createEventDispatcher, type Snippet } from 'svelte';
@@ -8,15 +10,15 @@
 
 	interface Props {
 		value: DropdownOption | null;
-		dropdownOptions: DropdownOption[];
 		placeholder: string;
 		icon: Snippet<[any]>;
 		class?: string;
 		showChevron?: boolean;
-		type: 'label' | 'project';
+		items: DropdownOption[];
+		type?: 'label' | 'project';
 	}
 
-	let { value, dropdownOptions, placeholder, icon, ...props }: Props = $props();
+	let { value = $bindable(), items, placeholder, icon, ...props }: Props = $props();
 
 	let floatingConfig = {
 		strategy: 'fixed'
@@ -31,7 +33,7 @@
 			//newTask.priority = priorities[1];
 		}, 0);
 	}}
-	items={dropdownOptions}
+	{items}
 	{floatingConfig}
 	clearable={true}
 	{placeholder}
@@ -40,7 +42,7 @@
 	class={`tickup-select ${props.class}`}
 	showChevron={props.showChevron}
 	--height="32px"
-	on:change={() => dispatch('change', { type: props.type, value: value.value })}
+	on:change={() => dispatch('change', { type: props.type, value: value?.value })}
 >
 	<div class={`mr-1 text-${value?.color}`} slot="prepend">
 		{@render icon?.('neutral-400')}

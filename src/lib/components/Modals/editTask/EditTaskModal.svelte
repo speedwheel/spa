@@ -3,7 +3,6 @@
 	import TaskNameInput from '../inputs/TaskNameInput.svelte';
 	import { priorities, PriorityColors } from '$lib/constants/priorities';
 	import type { DropdownOption } from '$lib/types/dropdowns';
-	import { labelsStore, projectsStore } from '$lib/stores/filtersStore';
 	import TaskDescriptionInput from '../inputs/TaskDescriptionInput.svelte';
 	import TaskPriority from '../inputs/TaskPriority.svelte';
 	import TaskFilter from '../inputs/TaskFilter.svelte';
@@ -14,6 +13,7 @@
 	import { goto } from '$app/navigation';
 	import { toTitleCase } from '$lib/utils/stringFormatter';
 	import { onlyDate } from '$lib/utils/dateFormatter';
+	import type { Task } from '$lib/types/tasks';
 
 	let modalDataName: string | null = $state('');
 	let modalDataDescription: string | null = $state('');
@@ -22,24 +22,8 @@
 	let modalDataProject: DropdownOption | null = $state(null);
 	let modalDataPanelDate: Date | null = $state(new Date());
 
-	let labelDropdownOptions: DropdownOption[] = $state([]);
-	let projectDropdownOptions: DropdownOption[] = $state([]);
-
-	// let onUpdateTask = $state((updates: Partial<Task>) => {
-	// 	appState.updateTask(modalState.dataEditTask.id, updates);
-	// });
-
 	const appState = getAppState();
 	const modalState = getModalState();
-
-	// Subscribe to the dropdownOptionsStore
-	labelsStore.dropdownOptionsStore.subscribe((options) => {
-		labelDropdownOptions = options;
-	});
-
-	projectsStore.dropdownOptionsStore.subscribe((options) => {
-		projectDropdownOptions = options;
-	});
 
 	// // Update the modalDataName and modalDataDescription when the modal is opened
 	// // We are using watch because we might refresh or open the modal via URL
@@ -57,7 +41,7 @@
 				color: PriorityColors[t.priority]
 			};
 			if (t.label_id) {
-				const label = $state.snapshot(labelsStore.getEntityById(t.label_id));
+				const label = appState.labels.labels.data[t.label_id];
 				if (label) {
 					modalDataLabel = {
 						label: label.name,
@@ -67,7 +51,7 @@
 				}
 			}
 			if (t.project_id) {
-				const project = $state.snapshot(projectsStore.getEntityById(t.project_id));
+				const project = appState.projects.projects.data[t.project_id];
 				if (project) {
 					modalDataProject = {
 						label: project.name,
@@ -82,54 +66,24 @@
 		}
 	);
 
-	// Watch for changes and update the task
-	// We could also use getters and setters instead
-	// but for new we use this method for reusability with the
-	// input componenets that are also used in the create new tassk modal
-	// which don't need reactivity on change
-	// watch(
-	// 	[
-	// 		() => modalDataName,
-	// 		() => modalDataDescription,
-	// 		() => modalDataPriority,
-	// 		() => modalDataLabel,
-	// 		() => modalDataProject,
-	// 		() => modalDataPanelDate
-	// 	],
-	// 	(
-	// 		[name, description, priority, label, project, panelDate],
-	// 		[namePrev, descriptionPrev, priorityPrev, labelPrev, projectPrev, panelDatePrev]
-	// 	) => {
-	// 		if (namePrev === undefined || descriptionPrev === undefined) return;
-	// 		if (name !== namePrev) {
-	// 			appState.updateTask(modalState.editTaskID, { name: name });
-	// 		} else if (description != descriptionPrev) {
-	// 			appState.updateTask(modalState.editTaskID, { description: description });
-	// 		}
-	// 		if (priority !== priorityPrev) {
-	// 			appState.updateTask(modalState.editTaskID, { priority: priority.value });
-	// 		}
-	// 		if (label !== labelPrev) {
-	// 			appState.updateTask(modalState.editTaskID, { label_id: label?.value });
-	// 		}
-	// 		if (project !== projectPrev) {
-	// 			appState.updateTask(modalState.editTaskID, { project_id: project?.value });
-	// 		}
-	// 		if (panelDate !== panelDatePrev) {
-	// 			appState.updateTask(modalState.editTaskID, { panel_date: onlyDate(panelDate) });
-	// 		}
-	// 	}
-	// );
-
 	function onClose() {
 		goto('/');
 	}
 
-	function onUpdateTask(e: CustomEvent) {
-		alert(1);
-		const eventType = e.detail.type as string;
-		if (eventType === 'label') {
+	function onUpdateTask(e: CustomEvent, type?: string) {
+		type = type ?? (e.detail.type as string);
+		if (type === 'label') {
 			appState.updateTask(modalState.editTaskID, { label_id: e.detail?.value });
+		} else if (type === 'project') {
+			appState.updateTask(modalState.editTaskID, { project_id: e.detail?.value });
+		} else if (type === 'priority') {
+			appState.updateTask(modalState.editTaskID, { priority: e.detail?.value });
+		} else if (type === 'panel_date') {
+			appState.updateTask(modalState.editTaskID, { panel_date: onlyDate(e.detail) });
+		} else if (type === 'name') {
+			appState.updateTask(modalState.editTaskID, { name: e.detail?.value });
+		} else if (type === 'description') {
+			appState.updateTask(modalState.editTaskID, { description: e.detail?.value });
 		}
 	}
 </script>
@@ -153,11 +107,12 @@
 		classBody="dark:bg-neutral-900 !p-0 "
 		classFooter="dark:bg-neutral-900"
 		classHeader="dark:bg-neutral-900 dark:text-neutral-100 [&_button:hover]:dark:!bg-neutral-700"
+		classDialog="[&_.dark\:divide-gray-700]:!divide-neutral-700"
 	>
 		<div class="flex">
-			<div class="flex-1 p-4 md:p-5">
-				<TaskNameInput bind:value={modalDataName} delay={300} />
-				<TaskDescriptionInput bind:value={modalDataDescription} />
+			<div class="max-h-[80vh] flex-1 overflow-y-auto p-4 md:p-6">
+				<TaskNameInput bind:value={modalDataName} on:update={onUpdateTask} delay={300} />
+				<TaskDescriptionInput bind:value={modalDataDescription} on:update={onUpdateTask} />
 			</div>
 			<div class="w-52 bg-neutral-800 p-4">
 				<button
@@ -170,14 +125,19 @@
 
 				<div class="mb-4 border-b border-dashed border-b-neutral-700 pb-4">
 					<div class="mb-2 text-xs dark:text-neutral-400">Priority</div>
-					<TaskPriority bind:value={modalDataPriority} class="!w-full" showChevron={true} />
+					<TaskPriority
+						bind:value={modalDataPriority}
+						class="!w-full"
+						showChevron={true}
+						on:change={onUpdateTask}
+					/>
 				</div>
 
 				<div class="mb-4 border-b border-dashed border-b-neutral-700 pb-4">
 					<div class="mb-2 text-xs dark:text-neutral-400">Label</div>
 					<TaskFilter
-						value={modalDataLabel}
-						dropdownOptions={labelDropdownOptions}
+						bind:value={modalDataLabel}
+						items={appState.labels.labelsDropdown}
 						placeholder="Labels"
 						icon={iconLabel}
 						class="!w-full"
@@ -190,8 +150,8 @@
 				<div class="mb-4 border-b border-dashed border-b-neutral-700 pb-4">
 					<div class="mb-2 text-xs dark:text-neutral-400">Project</div>
 					<TaskFilter
-						value={modalDataProject}
-						dropdownOptions={projectDropdownOptions}
+						bind:value={modalDataProject}
+						items={appState.projects.projectsDropdown}
 						placeholder="Projects"
 						icon={iconProject}
 						class="!w-full"
@@ -206,6 +166,9 @@
 					<div class="tickup-datepicker [&_input]:!w-full">
 						<Datepicker
 							bind:value={modalDataPanelDate}
+							on:select={(e) => {
+								onUpdateTask(e, 'panel_date');
+							}}
 							dateFormat={{ year: '2-digit', month: 'short', day: '2-digit' }}
 							defaultDate={new Date()}
 							autohide={true}

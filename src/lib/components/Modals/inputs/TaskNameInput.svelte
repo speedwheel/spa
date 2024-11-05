@@ -12,13 +12,9 @@
 	interface Props {
 		value: string | null;
 		delay?: number;
-		onUpdate?: {
-			set value(value: string);
-			get value(): string;
-		};
 	}
 
-	let { value = $bindable(), onUpdate = $bindable(), ...props }: Props = $props();
+	let { value = $bindable(), ...props }: Props = $props();
 
 	let editorEl: HTMLElement;
 	let editor: Editor | null = null;
@@ -48,11 +44,8 @@
 			onUpdate(propsInput) {
 				clearTimeout(inputTimeout);
 				inputTimeout = setTimeout(() => {
-					if (onUpdate) {
-						onUpdate.value = propsInput.editor.getText();
-					} else {
-						value = propsInput.editor.getText();
-					}
+					dispatch('update', { type: 'name', value: propsInput.editor.getText() });
+					value = propsInput.editor.getText();
 				}, props.delay);
 			},
 			onTransaction(transaction) {
@@ -60,7 +53,7 @@
 			},
 			editorProps: {
 				attributes: {
-					class: 'prose dark:prose-invert prose-2xl mb-4 focus:outline-none'
+					class: 'prose dark:prose-invert prose-2xl mb-4 focus:outline-none max-w-full'
 				}
 			}
 		});

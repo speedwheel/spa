@@ -1,33 +1,25 @@
 <script lang="ts">
 	import { SidebarDropdownWrapper } from 'flowbite-svelte';
-	import { onMount, type Snippet } from 'svelte';
+	import { type Snippet } from 'svelte';
 	import { ChevronDown, ChevronUp, Tag, Icon } from 'svelte-hero-icons';
-	import { type EntityStore } from '$lib/stores/filtersStore';
-	import type { Project } from '$lib/types/project';
-	import type { Label } from '$lib/types/label';
-	import type { Writable } from 'svelte/store';
-	import { getAppState } from '$lib/states/appState.svelte';
-	import filter from 'svelte-select/filter';
+	import { getAppState, type AsyncData } from '$lib/states/appState.svelte';
+	import type { BaseFilter } from '$lib/types/sharedTypes';
 
 	interface Props {
 		filterType: 'selectedLabel' | 'selectedProject';
-		items: EntityStore<Label | Project>;
-		label: string;
+		type: 'labels' | 'projects';
 		icon: Snippet<[any]>;
+		items: AsyncData<BaseFilter>;
 	}
 
-	let { filterType, items, label, icon }: Props = $props();
+	let { filterType, type, icon, items }: Props = $props();
 
 	const appState = getAppState();
-
-	(async () => {
-		await items.initialize();
-	})();
 </script>
 
 <SidebarDropdownWrapper
 	isOpen
-	{label}
+	label={type}
 	class="text-xs font-semibold dark:text-neutral-300 [&_span]:ms-0"
 	transitionType="slide"
 	ulClass="flex flex-col gap-1.5"
@@ -41,7 +33,7 @@
 		class="flex w-full items-center gap-1.5 rounded-md px-3 py-2 text-sm transition duration-75 dark:text-neutral-200 dark:hover:bg-neutral-900"
 		type="button"><Icon src={Tag} class={`size-4 text-blue-400`} />all</button
 	>
-	{#each $items as item, i (i)}
+	{#each Object.entries(items.data) as [id, item] (id)}
 		<button
 			onclick={() => {
 				appState[filterType] = item.id;

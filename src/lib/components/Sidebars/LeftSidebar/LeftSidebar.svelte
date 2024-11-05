@@ -1,7 +1,6 @@
 <script lang="ts">
 	import { Sidebar, SidebarGroup, SidebarWrapper } from 'flowbite-svelte';
 	import { Calendar, Icon, Inbox, Briefcase, User, Tag } from 'svelte-hero-icons';
-	import { labelsStore, projectsStore } from '$lib/stores/filtersStore';
 	import { getAppState } from '$lib/states/appState.svelte';
 	import SidebarFilter from './SidebarFilter.svelte';
 
@@ -81,15 +80,15 @@
 
 			<SidebarFilter
 				filterType="selectedLabel"
-				items={labelsStore}
 				icon={labelIcon}
-				label="Labels"
+				items={appState.labels.labels}
+				type="labels"
 			/>
 			<SidebarFilter
 				filterType="selectedProject"
-				items={projectsStore}
+				items={appState.projects.projects}
 				icon={projectIcon}
-				label="Projects"
+				type="projects"
 			/>
 		</SidebarGroup>
 	</SidebarWrapper>

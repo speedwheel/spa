@@ -6,18 +6,19 @@
 	import TaskItem from '@tiptap/extension-task-item';
 	import TaskList from '@tiptap/extension-task-list';
 	import StarterKit from '@tiptap/starter-kit';
-	import { onDestroy, onMount } from 'svelte';
+	import { createEventDispatcher, onDestroy, onMount } from 'svelte';
 
 	interface Props {
 		value: string | null;
-		onUpdateTask?: (updates: Partial<Task>) => void;
 	}
 
-	let { value = $bindable(), onUpdateTask = $bindable() }: Props = $props();
+	let { value = $bindable() }: Props = $props();
 
 	let editorEl: HTMLElement;
 	let editor: Editor | null = null;
 	let inputTimeout: NodeJS.Timeout;
+
+	const dispatch = createEventDispatcher();
 
 	onMount(() => {
 		editor = new Editor({
@@ -41,11 +42,8 @@
 			onUpdate(props) {
 				clearTimeout(inputTimeout);
 				inputTimeout = setTimeout(() => {
-					if (onUpdateTask) {
-						onUpdateTask({ description: props.editor.getHTML() });
-					} else {
-						value = props.editor.getHTML();
-					}
+					dispatch('update', { type: 'description', value: props.editor.getHTML() });
+					value = props.editor.getHTML();
 				}, 300);
 			},
 			onTransaction(transaction) {
@@ -53,7 +51,8 @@
 			},
 			editorProps: {
 				attributes: {
-					class: 'prose dark:prose-invert prose-sm focus:outline-none prose-p:my-0 prose-li:m-0'
+					class:
+						'prose dark:prose-invert prose-sm focus:outline-none prose-p:my-0 prose-li:m-0 max-w-full'
 				}
 			}
 		});

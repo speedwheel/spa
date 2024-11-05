@@ -2,6 +2,7 @@
 	import { priorities, Priority, PriorityColors } from '$lib/constants/priorities';
 	import type { DropdownOption } from '$lib/types/dropdowns';
 	import CheckOutline from 'flowbite-svelte-icons/CheckOutline.svelte';
+	import { createEventDispatcher } from 'svelte';
 	import { Flag, Icon, XMark } from 'svelte-hero-icons';
 	import Select from 'svelte-select';
 
@@ -20,6 +21,8 @@
 	let floatingConfig = {
 		strategy: 'fixed'
 	};
+
+	const dispatch = createEventDispatcher();
 </script>
 
 <Select
@@ -37,6 +40,7 @@
 	class={`tickup-select ${props.class}`}
 	--height="32px"
 	showChevron={props.showChevron}
+	on:change={() => dispatch('change', { type: 'priority', value: value?.value })}
 >
 	<div slot="item" let:item>
 		<Icon src={Flag} class={`size-4 text-${PriorityColors[item.value as Priority]}`} />
