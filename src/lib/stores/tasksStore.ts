@@ -1,13 +1,11 @@
-import { derived, get, writable, type Stores } from 'svelte/store';
-import type { CreateTaskProps, Task, WeeklyTask, WeeklyTasksResponse } from '$lib/types/tasks';
+import { derived, writable } from 'svelte/store';
+import type { Task, WeeklyTask } from '$lib/types/tasks';
 import { viewTypeStore } from './viewTypeStore';
 import { selectedLabelStore, selectedProjectStore } from './selectedFiltersStore';
 import api from '$lib/api/api';
 import { onlyDate } from '$lib/utils/dateFormatter';
-import { asyncWritable, type Writable, type WritableLoadable } from '@square/svelte-store';
 import { createLocalStorage, persist } from '@macfja/svelte-persistent-store';
 import { undoStack, transactionCtrl } from '@gira-de/svelte-undo';
-import { updateTask } from '$lib/api/tasks';
 
 //export const weeklyTasksStore = writable([]) as Writable<WeeklyTask[]>;
 // Create the store instance

@@ -14,7 +14,7 @@
 
 <header class="flex items-center border-b px-4 py-4 dark:border-b-neutral-700">
 	<div class="flex w-72 items-center justify-between">
-		<a href="/t/3434">
+		<a href="/">
 			<Logo className="h-9" />
 		</a>
 		<button

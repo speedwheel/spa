@@ -9,8 +9,8 @@ export type Task = {
 	description: string | null;
 	order_index: number;
 	view_type: ViewType;
-	priority: Priority | null; // Define possible values for priority
-	panel_date: string | null; // Consider using Date type if needed
+	priority: Priority; // Define possible values for priority
+	panel_date: string; // Consider using Date type if needed
 	user_id: string;
 	label_id: string | null;
 	project_id: string;
@@ -50,13 +50,3 @@ export interface UpdateTaskProps {
 	label_id?: string | null;
 	project_id?: string | null;
 }
-
-export type NewTaskProps = {
-	name: string;
-	view_type: ViewType;
-	panel_date: string;
-	description?: string;
-	priority: Priority;
-	project_id?: string;
-	label_id?: string;
-};

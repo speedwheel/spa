@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { createCustomPlaceholder } from '$lib/tiptap/extensions';
+	import type { Task } from '$lib/types/tasks';
 
 	import { Editor } from '@tiptap/core';
 	import TaskItem from '@tiptap/extension-task-item';
@@ -9,9 +10,10 @@
 
 	interface Props {
 		value: string | null;
+		onUpdateTask?: (updates: Partial<Task>) => void;
 	}
 
-	let { value = $bindable() }: Props = $props();
+	let { value = $bindable(), onUpdateTask = $bindable() }: Props = $props();
 
 	let editorEl: HTMLElement;
 	let editor: Editor | null = null;
@@ -39,7 +41,11 @@
 			onUpdate(props) {
 				clearTimeout(inputTimeout);
 				inputTimeout = setTimeout(() => {
-					value = props.editor.getHTML();
+					if (onUpdateTask) {
+						onUpdateTask({ description: props.editor.getHTML() });
+					} else {
+						value = props.editor.getHTML();
+					}
 				}, 300);
 			},
 			onTransaction(transaction) {

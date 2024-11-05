@@ -27,7 +27,8 @@ function createEntityStore<T extends BaseFilter>(
 	};
 
 	// Get an entity by its ID
-	const getEntityById = (id: string): T | undefined => {
+	const getEntityById = (id: string | null): T | undefined => {
+		if (!id) return;
 		let entity: T | undefined;
 		subscribe((entityList) => {
 			entity = entityList.find((entity) => entity.id === id);

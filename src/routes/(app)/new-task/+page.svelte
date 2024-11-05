@@ -1,5 +1,9 @@
 <script lang="ts">
-	import { isNewTaskOpenStore } from '$lib/stores/taskModalsStore';
+	import NewTaskModal from '$lib/components/Modals/newTask/NewTaskModal.svelte';
+	import { getModalState } from '$lib/states/modalState.svelte';
 
-	isNewTaskOpenStore.set(true);
+	const modalState = getModalState();
+	modalState.isOpenNewTask = true;
 </script>
+
+<NewTaskModal />

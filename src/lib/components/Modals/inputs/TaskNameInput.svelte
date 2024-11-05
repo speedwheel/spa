@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { oneLiner } from '$lib/tiptap/customNodes';
 	import { createCustomPlaceholder } from '$lib/tiptap/extensions';
+	import type { Task } from '$lib/types/tasks';
 
 	import { Editor } from '@tiptap/core';
 	import Paragraph from '@tiptap/extension-paragraph';
@@ -10,12 +11,18 @@
 
 	interface Props {
 		value: string | null;
+		delay?: number;
+		onUpdate?: {
+			set value(value: string);
+			get value(): string;
+		};
 	}
 
-	let { value = $bindable() }: Props = $props();
+	let { value = $bindable(), onUpdate = $bindable(), ...props }: Props = $props();
 
 	let editorEl: HTMLElement;
 	let editor: Editor | null = null;
+	let inputTimeout: NodeJS.Timeout;
 
 	const dispatch = createEventDispatcher();
 
@@ -38,8 +45,15 @@
 			],
 			element: editorEl,
 			content: value,
-			onUpdate(props) {
-				value = props.editor.getText();
+			onUpdate(propsInput) {
+				clearTimeout(inputTimeout);
+				inputTimeout = setTimeout(() => {
+					if (onUpdate) {
+						onUpdate.value = propsInput.editor.getText();
+					} else {
+						value = propsInput.editor.getText();
+					}
+				}, props.delay);
 			},
 			onTransaction(transaction) {
 				editor = transaction.editor;

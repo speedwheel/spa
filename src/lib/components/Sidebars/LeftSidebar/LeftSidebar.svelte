@@ -1,21 +1,11 @@
 <script lang="ts">
-	import { viewTypeStore } from '$lib/stores/viewTypeStore';
 	import { Sidebar, SidebarGroup, SidebarWrapper } from 'flowbite-svelte';
 	import { Calendar, Icon, Inbox, Briefcase, User, Tag } from 'svelte-hero-icons';
 	import { labelsStore, projectsStore } from '$lib/stores/filtersStore';
-	import SidebarFilter from '$lib/components/Sidebars/LeftSidebar/SidebarFilter.svelte';
-	import { selectedLabelStore, selectedProjectStore } from '$lib/stores/selectedFiltersStore';
 	import { getAppState } from '$lib/states/appState.svelte';
+	import SidebarFilter from './SidebarFilter.svelte';
 
 	const appState = getAppState();
-
-	selectedProjectStore.subscribe((value) => {
-		console.log('selectedProjectStore', value);
-	});
-
-	// setTimeout(() => {
-	// 	labelsStore.addEntity({ id: '1', name: 'Personal', color: 'blue', created_at: new Date() });
-	// }, 3000);
 </script>
 
 {#snippet labelIcon(color: string)}

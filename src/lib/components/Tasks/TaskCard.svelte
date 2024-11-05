@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { isEditTaskOpenStore, editTaskStore } from '$lib/stores/taskModalsStore';
+	import { goto } from '$app/navigation';
+	import { getModalState } from '$lib/states/modalState.svelte';
 	import type { Task } from '$lib/types/tasks';
 	import { Icon, Check } from 'svelte-hero-icons';
 
@@ -8,10 +9,11 @@
 	}
 
 	let { task }: Props = $props();
+	const appModal = getModalState();
 
 	function openTaskModal() {
-		editTaskStore.set(task);
-		isEditTaskOpenStore.set(true);
+		appModal.editTaskID = task.id;
+		goto('/t/' + task.id);
 	}
 
 	function toggleTaskDone(e: Event) {
@@ -20,9 +22,12 @@
 	}
 </script>
 
-<a href={`/t/${task.id}`} class="task-card task-card-hover">
+<button onclick={openTaskModal} class="task-card task-card-hover" data-id={task.id}>
 	<div class="flex w-full justify-between gap-1 pb-4 text-left">
-		<div class="flex-1 text-sm font-normal text-neutral-900 dark:text-neutral-50">{task?.name}</div>
+		<div class="flex-1 text-sm font-normal text-neutral-900 dark:text-neutral-50">
+			{task?.name}
+			{task.order_index}
+		</div>
 		<div class="flex-initial">
 			<div class="rounded bg-neutral-700 px-2 py-[3px] text-xs text-neutral-400">0:37/ 0:15</div>
 		</div>
@@ -45,4 +50,4 @@
 			</div>
 		</div>
 	</div>
-</a>
+</button>

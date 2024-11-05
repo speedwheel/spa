@@ -31,6 +31,7 @@
 	class="text-xs font-semibold dark:text-neutral-300 [&_span]:ms-0"
 	transitionType="slide"
 	ulClass="flex flex-col gap-1.5"
+	btnClass="flex items-center p-2 w-full text-base font-normal text-neutral-900 rounded-lg transition duration-75 group hover:bg-neutral-100 dark:text-white dark:hover:bg-neutral-700"
 >
 	<button
 		onclick={() => {

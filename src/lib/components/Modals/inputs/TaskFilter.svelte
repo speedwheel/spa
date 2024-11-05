@@ -1,7 +1,8 @@
 <script lang="ts">
 	import type { DropdownOption } from '$lib/types/misc';
 	import CheckOutline from 'flowbite-svelte-icons/CheckOutline.svelte';
-	import type { Snippet } from 'svelte';
+	import { watch } from 'runed';
+	import { createEventDispatcher, type Snippet } from 'svelte';
 	import { Icon, XMark, ChevronDown } from 'svelte-hero-icons';
 	import Select from 'svelte-select';
 
@@ -12,13 +13,16 @@
 		icon: Snippet<[any]>;
 		class?: string;
 		showChevron?: boolean;
+		type: 'label' | 'project';
 	}
 
-	let { value = $bindable(), dropdownOptions, placeholder, icon, ...props }: Props = $props();
+	let { value, dropdownOptions, placeholder, icon, ...props }: Props = $props();
 
 	let floatingConfig = {
 		strategy: 'fixed'
 	};
+
+	const dispatch = createEventDispatcher();
 </script>
 
 <Select
@@ -36,8 +40,11 @@
 	class={`tickup-select ${props.class}`}
 	showChevron={props.showChevron}
 	--height="32px"
+	on:change={() => dispatch('change', { type: props.type, value: value.value })}
 >
-	<div class={`mr-1 text-${value?.color}`} slot="prepend">{@render icon?.('neutral-400')}</div>
+	<div class={`mr-1 text-${value?.color}`} slot="prepend">
+		{@render icon?.('neutral-400')}
+	</div>
 
 	<div slot="item" let:item>
 		{@render icon?.(item)}

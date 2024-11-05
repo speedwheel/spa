@@ -1,7 +1,6 @@
 <script lang="ts">
 	import Sortable, { type SortableEvent } from 'sortablejs';
 
-	import { weeklyTasksStore } from '$lib/stores/tasksStore';
 	import { format } from 'date-fns/format';
 	import TaskCard from './TaskCard.svelte';
 	import { onlyDate } from '$lib/utils/dateFormatter';
@@ -9,71 +8,132 @@
 	import { ListPlaceholder } from 'flowbite-svelte';
 	import { Icon, Plus } from 'svelte-hero-icons';
 	import { getAppState } from '$lib/states/appState.svelte';
+	import { useIntersectionObserver, watch } from 'runed';
+	import { addDays, subDays } from 'date-fns';
+	import { json } from '@sveltejs/kit';
 
-	let columnsByDate: { [key: string]: HTMLElement } = $state({});
-	let scrollableElement: HTMLElement | null = null;
 	let appState = getAppState();
-
 	appState.loadTasks();
 
-	function handleScrollLeft() {
-		scrollableElement?.scrollBy(-16, 0);
-	}
+	// bind all columns by date
+	let columnsByDate: Record<string, HTMLElement> = $state({});
+	// the scrollable calendar element
+	let scrollableElement: HTMLElement | null = $state(null);
 
-	$effect(() => {
-		if (!appState.tasks.isLoading) {
-			initializeWeeklyTasksPromise();
-		}
+	// the trigger dates for the intersection observer
+	// when you scroll left and right
+	let triggerDate = $derived.by(() => {
+		return {
+			get dateStart() {
+				return onlyDate(addDays(appState.dateStart, 1));
+			},
+			get dateEnd() {
+				return onlyDate(subDays(appState.dateEnd, 1));
+			},
+			get dateStartColumn() {
+				return columnsByDate[this.dateStart];
+			},
+			get dateEndColumn() {
+				return columnsByDate[this.dateEnd];
+			}
+		};
 	});
 
-	const initializeWeeklyTasksPromise = async () => {
-		await weeklyTasksStore.initialize();
-		setTimeout(() => {
-			setupSortableColumns();
-		});
-		setupSortableColumns();
-	};
+	// the intersection observer to trigger the date change
+	const intersect = useIntersectionObserver(
+		() => {
+			return [triggerDate.dateStartColumn, triggerDate.dateEndColumn];
+		},
+		(entries) => {
+			const entry = entries[0];
+			if (entry && entry.isIntersecting) {
+				// if the start date is intersecting
+				if (entry.target === triggerDate.dateStartColumn) {
+					appState.baseDate = triggerDate.dateStart;
+					// if the end date is intersecting
+				} else if (entry.target === triggerDate.dateEndColumn) {
+					appState.baseDate = triggerDate.dateEnd;
+				}
 
-	// setTimeout(() => {
-	// 	console.log(
-	// 		weeklyTasksStore.updateTask('0192e38f-bc8d-73a2-9567-28bb13ed5583', { name: 'Task 333' })
-	// 	);
-	// }, 3000)
+				intersect.pause();
+				appState.loadTasks();
+			}
+		},
+		{ root: () => scrollableElement, immediate: false, threshold: 1 }
+	);
+
+	// initiate the sortable columns on tasks load
+	watch(
+		() => appState.tasks.isLoading,
+		(isLoading, isLoadingPrev) => {
+			if (!isLoading && isLoadingPrev) {
+				setupSortableColumns();
+			}
+		},
+		{ lazy: true }
+	);
+
+	function focusIntoView() {
+		columnsByDate[appState.baseDate]?.scrollIntoView({ behavior: 'instant', inline: 'start' });
+		scrollableElement?.scrollBy(-16, 0);
+		intersect.resume();
+	}
 
 	function setupSortableColumns() {
-		console.log('sorted');
+		//intersect.resume();
 		Object.keys(columnsByDate).forEach((date) => {
 			const column = columnsByDate[date] as HTMLElement;
+			if (!column) return;
 			Sortable.create(column, {
 				group: {
 					name: 'tasks'
 				},
 				animation: 100,
-				delay: 1,
+				delay: 0,
+				fallbackTolerance: 5,
 				delayOnTouchOnly: false,
 				forceFallback: true,
 				draggable: '.task-card',
 				direction: 'vertical',
-
 				ghostClass: 'ghost-card',
+				dragClass: 'drag-card',
 				easing: 'cubic-bezier(0, 0.55, 0.45, 1)',
 				onChoose(evt: SortableEvent) {
 					evt.item.classList.remove('task-card-hover');
 				},
 				onEnd: (evt: SortableEvent) => {
-					evt.item.classList.add('task-card-hover');
-				},
-				onMove: (evt) => {
-					if (evt.willInsertAfter) {
-						evt.from.insertBefore(evt.dragged, evt.from.firstChild);
-						return true;
+					const { item, to, from } = evt;
+					let adjustedIndex = 0;
+
+					// Iterate over `to.children` to count only the sortable elements
+					for (let i = 0; i < to.children.length; i++) {
+						const child = to.children[i];
+
+						// Skip elements that have the class `.ignore-item`
+						if (child.classList.contains('order-last')) continue;
+
+						// If we reached the dragged item, stop counting
+						if (child === item) break;
+
+						// Increment the index for each sortable element
+						adjustedIndex++;
 					}
+					const taskID: string = item.getAttribute('data-id') as string;
+					const dateTo = to.getAttribute('data-date') as string;
+					// console.log(evt.clone);
+					if (dateTo !== from.getAttribute('data-date')) {
+						evt.item.remove(); // Remove the clone if you don't need it in the DOM
+					}
+					appState.sortTasks(taskID, adjustedIndex, dateTo);
 				}
 			});
 		});
-		const targetDate = onlyDate(new Date());
-		columnsByDate[targetDate]?.scrollIntoView({ behavior: 'instant', inline: 'start' });
-		handleScrollLeft();
+
+		focusIntoView();
+
+		$effect(() => {
+			$inspect(appState.tasksByDate, new Date().toISOString());
+		});
 	}
 </script>
 
@@ -111,10 +171,11 @@
 
 						<div
 							bind:this={columnsByDate[onlyDate(date)]}
+							data-date={date}
 							class="relative flex flex-1 flex-col gap-4 overflow-y-auto overflow-x-hidden pt-4"
 						>
-							{#each tasks as _, i (i)}
-								<TaskCard task={tasks[i]} />
+							{#each tasks as task (task.id)}
+								<TaskCard {task} />
 							{/each}
 							<div class="order-last flex-1 !transform-none bg-neutral-800"></div>
 						</div>

@@ -104,8 +104,8 @@
 
 	/* Drag and Drop */
 	.drag-card {
-		@apply opacity-100 !important;
-		@apply rotate-6;
+		@apply border border-neutral-700 opacity-95 shadow-lg !important;
+		@apply rotate-2;
 	}
 
 	/* Custom Scrollbar */
@@ -165,11 +165,31 @@
 /* tickup date picker */
 .tickup-datepicker {
 	@apply [&_#datepicker-dropdown]:!fixed [&_#datepicker-dropdown]:-translate-x-36 [&_#datepicker-dropdown]:-translate-y-[370px];
-	@apply dark:[&_.bg-primary-700]:!bg-accent-purple-1;
-	@apply dark:[&_.bg-red-700]:!bg-accent-purple-2;
+	@apply dark:[&_.bg-primary-700:hover]:!bg-neutral-500 dark:[&_.bg-primary-700]:!bg-neutral-700;
+	@apply dark:[&_.bg-red-700:hover]:!bg-neutral-500 dark:[&_.bg-red-700]:!bg-neutral-700;
 	@apply [&_input]:h-8;
 	@apply dark:[&_input]:dark:!border-neutral-700;
 	@apply dark:[&_input]:bg-neutral-900;
+	@apply dark:[&_button]:dark:focus-within:!ring-0;
+
+	[aria-label='Previous month'],
+	[aria-label='Next month'] {
+		@apply dark:!bg-neutral-600;
+	}
+	.grid {
+		[aria-selected='true'] {
+			@apply dark:!bg-accent-purple-1;
+		}
+		button {
+			@apply dark:!border-neutral-600 dark:!text-neutral-400 dark:hover:!bg-neutral-600;
+		}
+		.dark\:text-gray-600 {
+			@apply dark:!text-neutral-600;
+		}
+		[role='columnheader'] {
+			@apply dark:!text-neutral-400;
+		}
+	}
 }
 
 /* tiptap placeholder */
